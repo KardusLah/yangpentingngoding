@@ -1,0 +1,8 @@
+.sidebar-wrapper {
+    transition: all 0.3s ease-in-out;
+}
+
+.sidebar-wrapper:not(.active) {
+    transform: translateX(-100%);
+    visibility: hidden;
+}
