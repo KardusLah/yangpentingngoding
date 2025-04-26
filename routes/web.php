@@ -22,8 +22,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'loginUser'])->name('login-user');
     Route::get('/register', [AuthController::class, 'registration'])->name('registration');
     Route::post('/register', [AuthController::class, 'registerUser'])->name('register-user');
-});
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+});                                                     
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::get('/admin', [AdminController::class, 'index'])
     ->middleware(['auth', CheckUserLevel::class . ':admin']);

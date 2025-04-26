@@ -13,14 +13,28 @@ class CheckUserLevel
      */
     public function handle(Request $request, Closure $next, ...$level)
     {
-        if (!Auth::check()) {
-            return redirect('/login');
-        }
+        // Check if the user is authenticated
+        if (Auth::check()) {
+            $userLevel = Auth::user()->level;
 
-        if (!in_array(Auth::user()->level, $level)) {
-            abort(403, 'Akses ditolak.');
+            // Check if the user's level matches the allowed levels
+            if (!in_array($userLevel, $level)) {
+                // Redirect to the appropriate dashboard based on their role
+                switch ($userLevel) {
+                    case 'admin':
+                        return redirect('/admin');
+                    case 'bendahara':
+                        return redirect('/bendahara');
+                    case 'owner':
+                        return redirect('/owner');
+                    case 'pelanggan':
+                        return redirect('/pelanggan');
+                    default:
+                        return redirect('/home'); // Default fallback
+                }
+            }
         }
 
         return $next($request);
-    }
+    }                               
 }

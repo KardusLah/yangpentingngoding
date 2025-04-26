@@ -59,11 +59,6 @@
         </div>
     </div>
     <div class="sidebar-menu">
-    @if(session('loginId'))
-        <?php
-            // Ambil data pengguna berdasarkan ID yang ada di session
-            $user = \App\Models\User::find(session('loginId'));
-        ?>
         <ul class="menu">
             <li class="sidebar-title">Menu</li>
             
@@ -138,6 +133,11 @@
             </li>
 
             <li class="sidebar-item">
+                @if(session('loginId'))
+                    <?php
+                        // Ambil data pengguna berdasarkan ID yang ada di session
+                        $user = \App\Models\User::find(session('loginId'));
+                    ?>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-danger w-100">

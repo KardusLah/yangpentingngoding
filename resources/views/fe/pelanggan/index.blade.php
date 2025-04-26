@@ -1,7 +1,7 @@
 @extends('fe.master')
-
-@section('title', 'Pelanggan')
-
+@section('navbar')
+    @include('fe.navbar')
+@endsection
 @section('content')
 <div class="hero">
   <div class="container">
@@ -183,3 +183,7 @@
     </table>
   </div>
 </div>
+@endsection
+@section('footer')
+    @include('fe.footer')
+@endsection

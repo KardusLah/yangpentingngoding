@@ -39,7 +39,7 @@
   </div>
 
   {{-- Navbar --}}
-  @include('fe.navbar')
+  @yield('navbar')
 
   {{-- Main Content --}}
   <main>
@@ -47,7 +47,7 @@
   </main>
 
   {{-- Footer --}}
-  @include('fe.footer')
+  @yield('footer')
 
   {{-- Scripts --}}
   <script src="{{ asset('fe/assets/js/jquery-3.4.1.min.js') }}"></script>

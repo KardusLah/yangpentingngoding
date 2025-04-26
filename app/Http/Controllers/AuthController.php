@@ -38,14 +38,24 @@ class AuthController extends Controller
         $user->password = Hash::make($request->password);
         $user->level = $request->level;
 
-        Auth::login($user);
-        $user->save();
+        if ($user->save()) {
+            // ✅ Simpan data ke tabel pelanggan
+            $pelanggan = new Pelanggan();
+            $pelanggan->id_user = $user->id;
+            $pelanggan->nama_lengkap = $user->name;
+            $pelanggan->no_hp = $user->no_hp; // default / bisa dari input request juga
+            $pelanggan->alamat = '-';
+            $pelanggan->save();
 
-        return redirect('/login')->with('success', 'Registrasi berhasil!');
+            Auth::login($user);
+            $request->session()->put('loginId', $user->id);
+            
+            return redirect('/login')->with('success', 'Registrasi berhasil!');
 
-        return back()->withErrors(['email' => 'Email atau Password Salah.']);
-        return back()->withErrors('password', 'Password minimal 8 karakter.');
-
+        } else {
+            return back()->withErrors(['email' => 'Email atau Password Salah.']);
+            return back()->withErrors('password', 'Password minimal 8 karakter.');
+        }
     }
 
 
@@ -58,8 +68,10 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
+        $user = User::where('email','=', $request->email)->first();
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $request->session()->put('loginId', $user->id);
 
             // Redirect based on user role
             switch (Auth::user()->level) {
