@@ -33,8 +33,9 @@ Route::middleware('guest')->group(function () {
 
 // User authentication routes
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
-Route::get('/admin', [AdminController::class, 'index'])->middleware(['auth', CheckUserLevel::class . ':admin']);
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+
+// Route dashboard admin dengan middleware auth dan level admin
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.index')->middleware(['auth', \App\Http\Middleware\CheckUserLevel::class . ':admin']);
 Route::get('/bendahara', [BendaharaController::class, 'index'])->middleware(['auth', CheckUserLevel::class . ':bendahara']);
 Route::get('/owner', [OwnerController::class, 'index'])->middleware(['auth', CheckUserLevel::class . ':owner']);
 Route::get('/profilepelanggan', [PelangganController::class, 'profilePelanggan'])->middleware(['auth', CheckPelanggan::class]);

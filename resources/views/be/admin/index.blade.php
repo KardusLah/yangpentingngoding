@@ -1,3 +1,4 @@
+{{-- filepath: resources/views/be/admin/index.blade.php --}}
 @extends('be.master')
 @section('content')
 <div class="page-heading">
@@ -94,7 +95,7 @@
                 </div>
             </div>
         </div>
-        <!-- Sidebar kanan (optional, bisa diisi info user, dsb) -->
+        <!-- Sidebar kanan (profil user) -->
         <div class="col-12 col-lg-3 mt-4 mt-lg-0">
             <div class="card h-100">
                 <div class="card-header">
@@ -102,12 +103,15 @@
                 </div>
                 <div class="card-body text-center">
                     <img src="{{ asset('be/assets/images/faces/1.jpg') }}" alt="Foto Profil" class="rounded-circle mb-3" width="80" height="80">
-                    <h6 class="mb-0">{{ Auth::user()->name }}</h6>
-                    <small class="text-muted">{{ Auth::user()->email }}</small>
-                    <div class="mt-2">
-                        <span class="badge bg-primary">{{ ucfirst(Auth::user()->level) }}</span>
-                    </div>
-                    {{-- Tambahkan info lain jika perlu --}}
+                    @if(Auth::check())
+                        <h6 class="mb-0">{{ Auth::user()->name }}</h6>
+                        <small class="text-muted">{{ Auth::user()->email }}</small>
+                        <div class="mt-2">
+                            <span class="badge bg-primary">{{ ucfirst(Auth::user()->level) }}</span>
+                        </div>
+                    @else
+                        <h6 class="mb-0 text-danger">Belum Login</h6>
+                    @endif
                 </div>
             </div>
         </div>

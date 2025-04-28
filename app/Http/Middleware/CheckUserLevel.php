@@ -13,28 +13,36 @@ class CheckUserLevel
      */
     public function handle(Request $request, Closure $next, ...$level)
     {
-        // Check if the user is authenticated
         if (Auth::check()) {
             $userLevel = Auth::user()->level;
-
-            // Check if the user's level matches the allowed levels
+    
+            // Jika level tidak sesuai
             if (!in_array($userLevel, $level)) {
-                // Redirect to the appropriate dashboard based on their role
+                // Cegah redirect loop: jika sudah di dashboard yang sesuai, biarkan lewat
+                $currentPath = $request->path();
+    
                 switch ($userLevel) {
                     case 'admin':
-                        return redirect('/admin');
+                        if ($currentPath !== 'admin') return redirect('/admin');
+                        break;
                     case 'bendahara':
-                        return redirect('/bendahara');
+                        if ($currentPath !== 'bendahara') return redirect('/bendahara');
+                        break;
                     case 'owner':
-                        return redirect('/owner');
+                        if ($currentPath !== 'owner') return redirect('/owner');
+                        break;
                     case 'pelanggan':
-                        return redirect('/pelanggan');
+                        if ($currentPath !== 'pelanggan') return redirect('/pelanggan');
+                        break;
                     default:
-                        return redirect('/home'); // Default fallback
+                        if ($currentPath !== 'home') return redirect('/home');
                 }
             }
+        } else {
+            // Jika belum login, redirect ke login
+            return redirect()->route('login');
         }
-
+    
         return $next($request);
-    }                               
+    }                            
 }
