@@ -20,5 +20,17 @@ class Reservasi extends Model
         'file_bukti_tf',
         'status_reservasi_wisata',
     ];
+
+    public function pelanggan()
+    {
+        return $this->belongsTo(Pelanggan::class, 'id_pelanggan');
+    }
+
+    public function paket()
+    {
+        return $this->belongsTo(PaketWisata::class, 'id_paket');
+    }
+
 }
+
 
