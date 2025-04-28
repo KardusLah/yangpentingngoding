@@ -3,7 +3,7 @@
 @section('content')
 <div class="container my-4">
     <h2>Tambah Pengguna</h2>
-    <form action="{{ route('user.store') }}" method="POST">
+    <form action="{{ route('user.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @if ($errors->any())
         <div class="alert alert-danger">
@@ -42,6 +42,10 @@
                 <option value="1" {{ old('aktif') == '1' ? 'selected' : '' }}>Aktif</option>
                 <option value="0" {{ old('aktif') == '0' ? 'selected' : '' }}>Nonaktif</option>
             </select>
+        </div>
+        <div class="mb-2">
+            <label>Foto</label>
+            <input type="file" name="foto" class="form-control" accept="image/*">
         </div>
 
         {{-- Form Pelanggan --}}

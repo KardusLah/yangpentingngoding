@@ -2,7 +2,7 @@
 @extends('be.master')
 @section('content')
 <div class="container my-4">
-    <h2>Tambah Objek Wisata</h2>
+    <h2>Edit Objek Wisata</h2>
     <form action="{{ route('wisata.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-2">

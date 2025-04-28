@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\Pelanggan;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -27,6 +28,7 @@ class UserController extends Controller
             'level' => 'required',
             'aktif' => 'required|boolean',
             'name' => 'required',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
         // Validasi tambahan sesuai level
@@ -43,6 +45,12 @@ class UserController extends Controller
 
         $data = $request->validate($rules);
 
+        // Proses upload foto jika ada
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('user', 'public');
+        }
+
         $user = User::create([
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
@@ -58,6 +66,7 @@ class UserController extends Controller
                 'nama_lengkap' => $data['nama_lengkap'],
                 'no_hp' => $data['no_hp_pelanggan'],
                 'alamat' => $data['alamat_pelanggan'],
+                'foto' => $fotoPath,
                 'id_user' => $user->id
             ]);
         } else {
@@ -66,6 +75,7 @@ class UserController extends Controller
                 'no_hp' => $data['no_hp_karyawan'],
                 'alamat' => $data['alamat_karyawan'],
                 'jabatan' => $data['jabatan'],
+                'foto' => $fotoPath,
                 'id_user' => $user->id
             ]);
         }
@@ -82,28 +92,71 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $data = $request->validate([
+
+        $rules = [
             'email' => 'required|email',
             'level' => 'required',
             'aktif' => 'required|boolean',
             'name' => 'required',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
+
+        if ($request->level == 'pelanggan') {
+            $rules['nama_lengkap'] = 'required';
+            $rules['no_hp_pelanggan'] = 'required';
+            $rules['alamat_pelanggan'] = 'required';
+        } else {
+            $rules['nama_karyawan'] = 'required';
+            $rules['no_hp_karyawan'] = 'required';
+            $rules['alamat_karyawan'] = 'required';
+            $rules['jabatan'] = 'required';
+        }
+
+        $data = $request->validate($rules);
+
+        // Proses upload foto jika ada
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('user', 'public');
+        }
+
+        $user->update([
+            'email' => $data['email'],
+            'level' => $data['level'],
+            'aktif' => $data['aktif'],
+            'name' => $data['name'],
+            'no_hp' => $data['level'] == 'pelanggan' ? $data['no_hp_pelanggan'] : $data['no_hp_karyawan'],
         ]);
-        $user->update($data);
 
         // Update data pelanggan/karyawan jika ada
         if ($user->level == 'pelanggan' && $user->pelanggan) {
-            $user->pelanggan->update([
+            $updateData = [
                 'nama_lengkap' => $request->nama_lengkap,
                 'no_hp' => $request->no_hp_pelanggan,
                 'alamat' => $request->alamat_pelanggan,
-            ]);
+            ];
+            if ($fotoPath) {
+                // Hapus foto lama jika ada
+                if ($user->pelanggan->foto) {
+                    Storage::disk('public')->delete($user->pelanggan->foto);
+                }
+                $updateData['foto'] = $fotoPath;
+            }
+            $user->pelanggan->update($updateData);
         } elseif ($user->karyawan) {
-            $user->karyawan->update([
+            $updateData = [
                 'nama_karyawan' => $request->nama_karyawan,
                 'no_hp' => $request->no_hp_karyawan,
                 'alamat' => $request->alamat_karyawan,
                 'jabatan' => $request->jabatan,
-            ]);
+            ];
+            if ($fotoPath) {
+                if ($user->karyawan->foto) {
+                    Storage::disk('public')->delete($user->karyawan->foto);
+                }
+                $updateData['foto'] = $fotoPath;
+            }
+            $user->karyawan->update($updateData);
         }
 
         return redirect()->route('user.index')->with('success', 'User berhasil diupdate');
@@ -113,8 +166,18 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         // Hapus relasi jika perlu
-        if ($user->pelanggan) $user->pelanggan->delete();
-        if ($user->karyawan) $user->karyawan->delete();
+        if ($user->pelanggan) {
+            if ($user->pelanggan->foto) {
+                Storage::disk('public')->delete($user->pelanggan->foto);
+            }
+            $user->pelanggan->delete();
+        }
+        if ($user->karyawan) {
+            if ($user->karyawan->foto) {
+                Storage::disk('public')->delete($user->karyawan->foto);
+            }
+            $user->karyawan->delete();
+        }
         $user->delete();
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus');
     }

@@ -62,10 +62,10 @@
         <ul class="menu">
             <li class="sidebar-title">Menu</li>
             
-            <li class="sidebar-item active">
-                <a href="index.html" class='sidebar-link'>
+            <li class="sidebar-item {{ request()->is('admin') ? 'active' : '' }}">
+                <a href="{{ route('admin.index') }}" class='sidebar-link'>
                     <i class="bi bi-grid-fill"></i>
-                    <span>Dashboard</span>
+                    <span>Dashboard dan Statistik Keuangan</span>
                 </a>
             </li>
 
@@ -75,6 +75,7 @@
                     <span>Manajemen Reservasi</span>
                 </a>
             </li>
+            
             <li class="sidebar-item {{ request()->is('be/paket*') ? 'active' : '' }}">
                 <a href="{{ route('paket.index') }}" class='sidebar-link'>
                     <i class="bi bi-calendar-check-fill"></i>
@@ -103,33 +104,10 @@
                 </a>
             </li>
 
-            {{-- Dropdown Manajemen User --}}
-            <li class="sidebar-item has-sub">
-                <a href="#" class='sidebar-link'>
-                    <i class="bi bi-person-badge-fill"></i>
-                    <span>Manajemen User</span>
-                </a>
-                <ul class="submenu">
-                    <li class="submenu-item">
-                        <a href="#">Manajemen Pelanggan</a>
-                    </li>
-                    <li class="submenu-item">
-                        <a href="#">Manajemen Karyawan</a>
-                    </li>
-                </ul>
-            </li>
-
             <li class="sidebar-item {{ request()->is('be/user*') ? 'active' : '' }}">
                 <a href="{{ route('user.index') }}" class='sidebar-link'>
                     <i class="bi bi-megaphone-fill"></i>
                     <span>Manajemen Pengguna & Level Akses</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item">
-                <a href="#" class='sidebar-link'>
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Laporan dan Statistik Keuangan</span>
                 </a>
             </li>
 

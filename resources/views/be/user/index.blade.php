@@ -1,3 +1,4 @@
+{{-- filepath: resources/views/be/user/index.blade.php --}}
 @extends('be.master')
 @section('content')
 <div class="container my-4">
@@ -60,6 +61,8 @@
                 <td>
                     @if($u->level == 'pelanggan' && $u->pelanggan && $u->pelanggan->foto)
                         <img src="{{ asset('storage/'.$u->pelanggan->foto) }}" width="40">
+                    @elseif($u->karyawan && $u->karyawan->foto)
+                        <img src="{{ asset('storage/'.$u->karyawan->foto) }}" width="40">
                     @else
                         -
                     @endif

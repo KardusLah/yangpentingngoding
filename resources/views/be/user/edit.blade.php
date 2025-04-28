@@ -1,8 +1,10 @@
+{{-- filepath: resources/views/be/user/edit.blade.php --}}
 @extends('be.master')
 @section('content')
 <div class="container my-4">
     <h2>Edit Pengguna</h2>
-    <form action="{{ route('user.update', $user->id) }}" method="POST">
+    <form action="{{ route('user.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf @method('PUT')
         @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -12,10 +14,10 @@
             </ul>
         </div>
         @endif
-        @csrf
+
         <div class="mb-2">
             <label>Nama User</label>
-            <input type="text" name="name" class="form-control" required>
+            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
         </div>
         <div class="mb-2">
             <label>Email</label>
@@ -23,7 +25,7 @@
         </div>
         <div class="mb-2">
             <label>Level</label>
-            <select name="level" class="form-control" required>
+            <select name="level" class="form-control" id="level" required onchange="toggleForm()">
                 <option value="admin" {{ $user->level == 'admin' ? 'selected' : '' }}>Admin</option>
                 <option value="bendahara" {{ $user->level == 'bendahara' ? 'selected' : '' }}>Bendahara</option>
                 <option value="pelanggan" {{ $user->level == 'pelanggan' ? 'selected' : '' }}>Pelanggan</option>
@@ -37,41 +39,56 @@
                 <option value="0" {{ !$user->aktif ? 'selected' : '' }}>Nonaktif</option>
             </select>
         </div>
+        <div class="mb-2">
+            <label>Foto</label>
+            <input type="file" name="foto" class="form-control" accept="image/*">
+            @if($user->level == 'pelanggan' && $user->pelanggan && $user->pelanggan->foto)
+                <img src="{{ asset('storage/'.$user->pelanggan->foto) }}" width="60" class="mt-2">
+            @elseif($user->karyawan && $user->karyawan->foto)
+                <img src="{{ asset('storage/'.$user->karyawan->foto) }}" width="60" class="mt-2">
+            @endif
+        </div>
+
         @if($user->level == 'pelanggan' && $user->pelanggan)
-            <div class="mb-2">
-                <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $user->pelanggan->nama_lengkap) }}">
-            </div>
-            <div class="mb-2">
-                <label>No HP</label>
-                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $user->pelanggan->no_hp) }}">
-            </div>
-            <div class="mb-2">
-                <label>Alamat</label>
-                <input type="text" name="alamat" class="form-control" value="{{ old('alamat', $user->pelanggan->alamat) }}">
+            <div id="form-pelanggan">
+                <div class="mb-2">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $user->pelanggan->nama_lengkap) }}">
+                </div>
+                <div class="mb-2">
+                    <label>No HP</label>
+                    <input type="text" name="no_hp_pelanggan" class="form-control" value="{{ old('no_hp_pelanggan', $user->pelanggan->no_hp) }}">
+                </div>
+                <div class="mb-2">
+                    <label>Alamat</label>
+                    <input type="text" name="alamat_pelanggan" class="form-control" value="{{ old('alamat_pelanggan', $user->pelanggan->alamat) }}">
+                </div>
             </div>
         @elseif($user->karyawan)
-            <div class="mb-2">
-                <label>Nama Karyawan</label>
-                <input type="text" name="nama_karyawan" class="form-control" value="{{ old('nama_karyawan', $user->karyawan->nama_karyawan) }}">
-            </div>
-            <div class="mb-2">
-                <label>No HP</label>
-                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $user->karyawan->no_hp) }}">
-            </div>
-            <div class="mb-2">
-                <label>Alamat</label>
-                <input type="text" name="alamat" class="form-control" value="{{ old('alamat', $user->karyawan->alamat) }}">
-            </div>
-            <div class="mb-2">
-                <label>Jabatan</label>
-                <select name="jabatan" class="form-control">
-                    <option value="administrasi" {{ $user->karyawan->jabatan == 'administrasi' ? 'selected' : '' }}>Administrasi</option>
-                    <option value="bendahara" {{ $user->karyawan->jabatan == 'bendahara' ? 'selected' : '' }}>Bendahara</option>
-                    <option value="pemilik" {{ $user->karyawan->jabatan == 'pemilik' ? 'selected' : '' }}>Pemilik</option>
-                </select>
+            <div id="form-karyawan">
+                <div class="mb-2">
+                    <label>Nama Karyawan</label>
+                    <input type="text" name="nama_karyawan" class="form-control" value="{{ old('nama_karyawan', $user->karyawan->nama_karyawan) }}">
+                </div>
+                <div class="mb-2">
+                    <label>No HP</label>
+                    <input type="text" name="no_hp_karyawan" class="form-control" value="{{ old('no_hp_karyawan', $user->karyawan->no_hp) }}">
+                </div>
+                <div class="mb-2">
+                    <label>Alamat</label>
+                    <input type="text" name="alamat_karyawan" class="form-control" value="{{ old('alamat_karyawan', $user->karyawan->alamat) }}">
+                </div>
+                <div class="mb-2">
+                    <label>Jabatan</label>
+                    <select name="jabatan" class="form-control">
+                        <option value="administrasi" {{ $user->karyawan->jabatan == 'administrasi' ? 'selected' : '' }}>Administrasi</option>
+                        <option value="bendahara" {{ $user->karyawan->jabatan == 'bendahara' ? 'selected' : '' }}>Bendahara</option>
+                        <option value="pemilik" {{ $user->karyawan->jabatan == 'pemilik' ? 'selected' : '' }}>Pemilik</option>
+                    </select>
+                </div>
             </div>
         @endif
+
         <button class="btn btn-primary">Update</button>
         <a href="{{ route('user.index') }}" class="btn btn-secondary">Kembali</a>
     </form>

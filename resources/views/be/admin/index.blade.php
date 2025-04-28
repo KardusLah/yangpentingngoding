@@ -1,320 +1,116 @@
 @extends('be.master')
 @section('content')
 <div class="page-heading">
-    <h3>Profile Statistics</h3>
-</div> 
+    <h3>Dashboard & Statistik</h3>
+</div>
 <div class="page-content">
     <section class="row">
         <div class="col-12 col-lg-9">
-            <div class="row">
-                <div class="col-6 col-lg-3 col-md-6">
-                    <div class="card">
-                        <div class="card-body px-4 py-4-5">
-                            <div class="row">
-                                <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                    <div class="stats-icon purple mb-2">
-                                        <i class="iconly-boldShow"></i>
-                                    </div>
-                                </div>
-                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Profile Views</h6>
-                                    <h6 class="font-extrabold mb-0">112.000</h6>
-                                </div>
-                            </div> 
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body px-4 py-4-5 d-flex flex-column align-items-center">
+                            <div class="stats-icon purple mb-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                                <i class="bi bi-box fs-3"></i>
+                            </div>
+                            <h6 class="text-muted font-semibold text-center">Paket Wisata</h6>
+                            <h6 class="font-extrabold mb-0 text-center">{{ $totalPaket }}</h6>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-lg-3 col-md-6">
-                    <div class="card"> 
-                        <div class="card-body px-4 py-4-5">
-                            <div class="row">
-                                <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                    <div class="stats-icon blue mb-2">
-                                        <i class="iconly-boldProfile"></i>
-                                    </div>
-                                </div>
-                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Followers</h6>
-                                    <h6 class="font-extrabold mb-0">183.000</h6>
-                                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body px-4 py-4-5 d-flex flex-column align-items-center">
+                            <div class="stats-icon blue mb-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                                <i class="bi bi-calendar-check fs-3"></i>
                             </div>
+                            <h6 class="text-muted font-semibold text-center">Reservasi</h6>
+                            <h6 class="font-extrabold mb-0 text-center">{{ $totalReservasi }}</h6>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-lg-3 col-md-6">
-                    <div class="card">
-                        <div class="card-body px-4 py-4-5">
-                            <div class="row">
-                                <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                    <div class="stats-icon green mb-2">
-                                        <i class="iconly-boldAdd-User"></i>
-                                    </div>
-                                </div>
-                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Following</h6>
-                                    <h6 class="font-extrabold mb-0">80.000</h6>
-                                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body px-4 py-4-5 d-flex flex-column align-items-center">
+                            <div class="stats-icon green mb-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                                <i class="bi bi-geo-alt fs-3"></i>
                             </div>
+                            <h6 class="text-muted font-semibold text-center">Objek Wisata</h6>
+                            <h6 class="font-extrabold mb-0 text-center">{{ $totalWisata }}</h6>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-lg-3 col-md-6">
-                    <div class="card">
-                        <div class="card-body px-4 py-4-5">
-                            <div class="row">
-                                <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                    <div class="stats-icon red mb-2">
-                                        <i class="iconly-boldBookmark"></i>
-                                    </div>
-                                </div>
-                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Saved Post</h6>
-                                    <h6 class="font-extrabold mb-0">112</h6>
-                                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body px-4 py-4-5 d-flex flex-column align-items-center">
+                            <div class="stats-icon red mb-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                                <i class="bi bi-house-door fs-3"></i>
                             </div>
+                            <h6 class="text-muted font-semibold text-center">Penginapan</h6>
+                            <h6 class="font-extrabold mb-0 text-center">{{ $totalPenginapan }}</h6>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <!-- Statistik Keuangan -->
+            <div class="row mt-4">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-header">
-                            <h4>Profile Visit</h4>
+                            <h4>Total Pendapatan Reservasi</h4>
                         </div>
                         <div class="card-body">
-                            <div id="chart-profile-visit"></div>
+                            <h2 class="text-success">Rp {{ number_format($totalPendapatan,0,',','.') }}</h2>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 col-xl-4">
-                    <div class="card">
+            <!-- Statistik Reservasi per Paket -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card h-100">
                         <div class="card-header">
-                            <h4>Profile Visit</h4>
+                            <h4>Statistik Reservasi per Paket Wisata</h4>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-primary" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="{{ asset('be/assets/static/images/bootstrap-icons.svg#circle-fill') }}" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">Europe</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">862</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-europe"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-success" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="{{asset("be/assets/static/images/bootstrap-icons.svg#circle-fill")}}" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">America</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">375</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-america"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-success" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="{{asset("be/assets/static/images/bootstrap-icons.svg#circle-fill")}}" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">India</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">625</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-india"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-danger" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="{{asset("be/assets/static/images/bootstrap-icons.svg#circle-fill")}}" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">Indonesia</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">1025</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-indonesia"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-xl-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Latest Comments</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-lg">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Comment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('be/assets/compiled/jpg/5.jpg') }}">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Cantik</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Congratulations on your graduation!</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{asset("be/assets/compiled/jpg/2.jpg")}}">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Wow amazing design! Can you make another tutorial for
-                                                    this design?</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{asset("be/assets/compiled/jpg/8.jpg")}}">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Singh Eknoor</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">What a stunning design! You are so talented and creative!</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{asset("be/assets/compiled/jpg/3.jpg")}}">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Rani Jhadav</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">I love your design! It’s so beautiful and unique! How did you learn to do this?</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table class="table table-bordered mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Paket Wisata</th>
+                                        <th>Jumlah Reservasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($reservasiPerPaket as $row)
+                                    <tr>
+                                        <td>{{ $row->paket->nama_paket ?? '-' }}</td>
+                                        <td>{{ $row->jumlah }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-3">
-            <div class="card">
-                <div class="card-body py-4 px-4">
-                    <div class="d-flex align-items-center">
-                        <div class="avatar avatar-xl">
-                            <img src="{{asset('be/assets/compiled/jpg/1.jpg')}}" alt="Face 1">
-                        </div>
-                        <div class="ms-3 name">
-                            @if(session('loginId'))
-                                <?php
-                                    // Ambil data pengguna berdasarkan ID yang ada di session
-                                    $user = \App\Models\User::find(session('loginId'));
-                                ?>
-                            <h5 class="font-bold">{{ $user->name }}</h5>
-                            <h6 class="text-muted mb-0">{{ $user->email }}</h6>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
+        <!-- Sidebar kanan (optional, bisa diisi info user, dsb) -->
+        <div class="col-12 col-lg-3 mt-4 mt-lg-0">
+            <div class="card h-100">
                 <div class="card-header">
-                    <h4>Recent Messages</h4>
+                    <h5>Profil User</h5>
                 </div>
-                <div class="card-content pb-4">
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="{{asset("be/assets/compiled/jpg/4.jpg")}}">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Hank Schrader</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
-                        </div>
+                <div class="card-body text-center">
+                    <img src="{{ asset('be/assets/images/faces/1.jpg') }}" alt="Foto Profil" class="rounded-circle mb-3" width="80" height="80">
+                    <h6 class="mb-0">{{ Auth::user()->name }}</h6>
+                    <small class="text-muted">{{ Auth::user()->email }}</small>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">{{ ucfirst(Auth::user()->level) }}</span>
                     </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="{{asset("be/assets/compiled/jpg/5.jpg")}}">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Dean Winchester</h5>
-                            <h6 class="text-muted mb-0">@imdean</h6>
-                        </div>
-                    </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="{{asset("be/assets/compiled/jpg/1.jpg")}}">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">John Dodol</h5>
-                            <h6 class="text-muted mb-0">@dodoljohn</h6>
-                        </div>
-                    </div>
-                    <div class="px-4">
-                        <button class='btn btn-block btn-xl btn-outline-primary font-bold mt-3'>Start Conversation</button>
-                    </div>
-                </div>
-            </div> 
-            <div class="card">
-                <div class="card-header">
-                    <h4>Visitors Profile</h4>
-                </div>
-                <div class="card-body">
-                    <div id="chart-visitors-profile"></div>
+                    {{-- Tambahkan info lain jika perlu --}}
                 </div>
             </div>
         </div>
     </section>
 </div>
-@endsection
-@section ('footer')
-    @include('be.footer')
 @endsection

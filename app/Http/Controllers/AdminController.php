@@ -12,8 +12,25 @@ class AdminController extends Controller
      */
     public function index()
     {
+        $totalPaket = \App\Models\PaketWisata::count();
+        $totalReservasi = \App\Models\Reservasi::count();
+        $totalWisata = \App\Models\ObyekWisata::count();
+        $totalPenginapan = \App\Models\Penginapan::count();
+    
+        $totalPendapatan = \App\Models\Reservasi::whereIn('status_reservasi_wisata', ['dibayar', 'selesai'])
+            ->sum('total_bayar');
+    
+        $reservasiPerPaket = \App\Models\Reservasi::selectRaw('id_paket, COUNT(*) as jumlah')
+            ->groupBy('id_paket')->with('paket')->get();
+    
         return view('be.admin.index', [
-            'title' => 'Admin'
+            'title' => 'Admin',
+            'totalPaket' => $totalPaket,
+            'totalReservasi' => $totalReservasi,
+            'totalWisata' => $totalWisata,
+            'totalPenginapan' => $totalPenginapan,
+            'totalPendapatan' => $totalPendapatan,
+            'reservasiPerPaket' => $reservasiPerPaket,
         ]);
     }
 
