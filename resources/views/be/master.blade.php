@@ -119,9 +119,9 @@
                 </ul>
             </li>
 
-            <li class="sidebar-item">
-                <a href="#" class='sidebar-link'>
-                    <i class="bi bi-person-circle"></i>
+            <li class="sidebar-item {{ request()->is('be/user*') ? 'active' : '' }}">
+                <a href="{{ route('user.index') }}" class='sidebar-link'>
+                    <i class="bi bi-megaphone-fill"></i>
                     <span>Manajemen Pengguna & Level Akses</span>
                 </a>
             </li>

@@ -13,6 +13,7 @@ use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\PaketWisataController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\ObyekWisataController;
+use App\Http\Controllers\UserController;
 
 
 // Route::get('/', function () {
@@ -88,4 +89,14 @@ Route::prefix('be/penginapan')->name('penginapan.')->group(function () {
     Route::get('/{id}/edit', [PenginapanController::class, 'edit'])->name('edit');
     Route::put('/{id}', [PenginapanController::class, 'update'])->name('update');
     Route::delete('/{id}', [PenginapanController::class, 'destroy'])->name('destroy');
+});
+
+// Manajemen User & Hak Akses Routes
+Route::prefix('be/user')->name('user.')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+    Route::get('/be/user/create', [UserController::class, 'create'])->name('create');
+    Route::post('/be/user', [UserController::class, 'store'])->name('store');
+    Route::put('/{id}', [UserController::class, 'update'])->name('update');
+    Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
 });
