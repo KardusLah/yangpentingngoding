@@ -19,5 +19,10 @@ class ObyekWisata extends Model
         'foto4',
         'foto5',
     ];
+    
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriWisata::class, 'id_kategori_wisata');
+    }
 }
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\PaketWisataController;
 use App\Http\Controllers\BeritaController;
+use App\Models\KategoriBerita;
 
 // Route::get('/', function () {
 //     return view('welcome');
