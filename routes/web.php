@@ -12,7 +12,8 @@ use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\PaketWisataController;
 use App\Http\Controllers\BeritaController;
-use App\Models\KategoriBerita;
+use App\Http\Controllers\ObyekWisataController;
+
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -65,4 +66,26 @@ Route::prefix('be/berita')->name('berita.')->group(function () {
     Route::get('/{id}/edit', [BeritaController::class, 'edit'])->name('edit');
     Route::put('/{id}', [BeritaController::class, 'update'])->name('update');
     Route::delete('/{id}', [BeritaController::class, 'destroy'])->name('destroy');
+});
+
+// Obyek Wisata Routes
+Route::prefix('be/wisata')->name('wisata.')->group(function () {
+    Route::get('/', [ObyekWisataController::class, 'index'])->name('index');
+    Route::get('/create', [ObyekWisataController::class, 'create'])->name('create');
+    Route::post('/', [ObyekWisataController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [ObyekWisataController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [ObyekWisataController::class, 'update'])->name('update');
+    Route::delete('/{id}', [ObyekWisataController::class, 'destroy'])->name('destroy');
+});
+
+// Penginapan Routes
+use App\Http\Controllers\PenginapanController;
+
+Route::prefix('be/penginapan')->name('penginapan.')->group(function () {
+    Route::get('/', [PenginapanController::class, 'index'])->name('index');
+    Route::get('/create', [PenginapanController::class, 'create'])->name('create');
+    Route::post('/', [PenginapanController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [PenginapanController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [PenginapanController::class, 'update'])->name('update');
+    Route::delete('/{id}', [PenginapanController::class, 'destroy'])->name('destroy');
 });

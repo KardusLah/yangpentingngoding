@@ -89,16 +89,16 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
-                <a href="#" class='sidebar-link'>
-                    <i class="bi bi-geo-alt-fill"></i>
+            <li class="sidebar-item {{ request()->is('be/wisata*') ? 'active' : '' }}">
+                <a href="{{ route('wisata.index') }}" class='sidebar-link'>
+                    <i class="bi bi-megaphone-fill"></i>
                     <span>Manajemen Objek Wisata</span>
                 </a>
             </li>
 
-            <li class="sidebar-item">
-                <a href="#" class='sidebar-link'>
-                    <i class="bi bi-house-fill"></i>
+            <li class="sidebar-item {{ request()->is('be/penginapan*') ? 'active' : '' }}">
+                <a href="{{ route('penginapan.index') }}" class='sidebar-link'>
+                    <i class="bi bi-megaphone-fill"></i>
                     <span>Manajemen Penginapan</span>
                 </a>
             </li>
