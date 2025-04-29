@@ -102,7 +102,18 @@
                     <h5>Profil User</h5>
                 </div>
                 <div class="card-body text-center">
-                    <img src="{{ asset('be/assets/images/faces/1.jpg') }}" alt="Foto Profil" class="rounded-circle mb-3" width="80" height="80">
+                    @php
+                    $user = Auth::user();
+                    $foto = null;
+                    if ($user->level == 'pelanggan' && $user->pelanggan && $user->pelanggan->foto) {
+                        $foto = asset('storage/' . $user->pelanggan->foto);
+                    } elseif ($user->karyawan && $user->karyawan->foto) {
+                        $foto = asset('storage/' . $user->karyawan->foto);
+                    } else {
+                        $foto = asset('be/assets/images/faces/1.jpg');
+                    }
+                    @endphp
+                    <img src="{{ $foto }}" alt="Foto Profil" class="rounded-circle mb-3" width="80" height="80">
                     @if(Auth::check())
                         <h6 class="mb-0">{{ Auth::user()->name }}</h6>
                         <small class="text-muted">{{ Auth::user()->email }}</small>

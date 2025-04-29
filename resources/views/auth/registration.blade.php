@@ -43,13 +43,13 @@
                         <i class="bi bi-envelope"></i>
                     </div>
                 </div>
-                <div class="form-group position-relative has-icon-left mb-4">
+                {{-- <div class="form-group position-relative has-icon-left mb-4">
                     <input type="name" class="form-control form-control-xl" name="name" placeholder="Username" value="{{ old('name') }}">
                     <span class="text-danger">@error('name') {{ $message }} @enderror</span>
                     <div class="form-control-icon">
                         <i class="bi bi-person"></i>
                     </div>
-                </div>
+                </div> --}}
                 <div class="form-group position-relative has-icon-left mb-4">
                     <input type="no_hp" class="form-control form-control-xl" name="no_hp" placeholder="Phone number" value="{{ old('no_hp') }}">
                     <span class="text-danger">@error('no_hp') {{ $message }} @enderror</span>
@@ -76,7 +76,7 @@
                         <option value="pelanggan">Pelanggan</option>
                         <option value="admin">Administrasi</option>
                         <option value="bendahara">Bendahara</option>
-                        <option value="owner">Pemilik</option>
+                        <option value="pemilik">Pemilik</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up</button>

@@ -109,21 +109,19 @@
                             <span>Manajemen Paket Wisata</span>
                         </a>
                     </li>
-                    <li class="sidebar-item {{ request()->is('laporan*') ? 'active' : '' }}">
+                    {{-- <li class="sidebar-item {{ request()->is('laporan*') ? 'active' : '' }}">
                         <a href="{{ route('laporan.index') }}" class='sidebar-link'>
                             <i class="bi bi-bar-chart"></i>
                             <span>Laporan Keuangan</span>
                         </a>
-                    </li>
-                @elseif(Auth::user()->level == 'owner')
-                    {{-- Sidebar untuk Owner --}}
-                    <li class="sidebar-item {{ request()->is('owner') ? 'active' : '' }}">
+                    </li> --}}
+                @elseif(Auth::user()->level == 'pemilik')
+                    <li class="sidebar-item {{ request()->is('pemilik') ? 'active' : '' }}">
                         <a href="{{ route('owner.index') }}" class='sidebar-link'>
                             <i class="bi bi-person-badge"></i>
                             <span>Dashboard Owner</span>
                         </a>
                     </li>
-                    {{-- ...menu owner lain... --}}
                 @elseif(Auth::user()->level == 'pelanggan')
                     {{-- Sidebar untuk Pelanggan --}}
                     <li class="sidebar-item {{ request()->is('profilepelanggan') ? 'active' : '' }}">

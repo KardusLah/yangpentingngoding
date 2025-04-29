@@ -1,7 +1,8 @@
+{{-- filepath: resources/views/be/owner/index.blade.php --}}
 @extends('be.master')
 @section('content')
 <div class="page-heading">
-    <h3>Dashboard Bendahara</h3>
+    <h3>Dashboard Owner</h3>
 </div>
 <div class="mb-3">
     <a href="{{ route('laporan.exportPdf') }}" class="btn btn-danger">Export PDF</a>
@@ -10,6 +11,7 @@
 <div class="page-content">
     <section class="row">
         <div class="col-12 col-lg-9">
+            {{-- Statistik --}}
             <div class="row g-3">
                 <div class="col-6 col-lg-3">
                     <div class="card h-100">
@@ -59,30 +61,43 @@
                     </div>
                 </div>
             </div>
-            {{-- Daftar reservasi untuk manajemen pembayaran --}}
+            {{-- Tabel Reservasi --}}
             <div class="row mt-4">
                 <div class="col-12">
                     <div class="card h-100">
-                        <div class="card-header"><h4>Manajemen Pembayaran Reservasi</h4></div>
+                        <div class="card-header"><h4>Daftar Reservasi</h4></div>
                         <div class="card-body">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
+                                        <th>No</th>
                                         <th>Pelanggan</th>
-                                        <th>Paket</th>
-                                        <th>Peserta</th>
-                                        <th>Total</th>
+                                        <th>Paket Wisata</th>
+                                        <th>Tgl Reservasi</th>
+                                        <th>Harga</th>
+                                        <th>Jumlah Peserta</th>
+                                        <th>Diskon</th>
+                                        <th>Total Bayar</th>
                                         <th>Status</th>
-                                        <th>Bukti Bayar</th>
-                                        <th>Aksi</th>
+                                        <th>Dibuat</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($reservasi as $r)
+                                    @foreach($reservasi as $i => $r)
                                     <tr>
+                                        <td>{{ $i+1 }}</td>
                                         <td>{{ $r->pelanggan->nama_lengkap ?? '-' }}</td>
                                         <td>{{ $r->paket->nama_paket ?? '-' }}</td>
+                                        <td>{{ $r->tgl_reservasi_wisata }}</td>
+                                        <td>Rp{{ number_format($r->harga,0,',','.') }}</td>
                                         <td>{{ $r->jumlah_peserta }}</td>
+                                        <td>
+                                            @if($r->diskon)
+                                                {{ $r->diskon }}% (Rp{{ number_format($r->nilai_diskon,0,',','.') }})
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td>Rp{{ number_format($r->total_bayar,0,',','.') }}</td>
                                         <td>
                                             @if($r->status_reservasi_wisata == 'pesan')
@@ -93,22 +108,47 @@
                                                 <span class="badge bg-info">Selesai</span>
                                             @endif
                                         </td>
+                                        <td>{{ $r->created_at->format('d-m-Y') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- Tabel Paket Wisata --}}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card h-100">
+                        <div class="card-header"><h4>Daftar Paket Wisata</h4></div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Paket</th>
+                                        <th>Deskripsi</th>
+                                        <th>Fasilitas</th>
+                                        <th>Harga/Pack</th>
+                                        <th>Foto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($paket as $i => $p)
+                                    <tr>
+                                        <td>{{ $i+1 }}</td>
+                                        <td>{{ $p->nama_paket }}</td>
+                                        <td>{{ $p->deskripsi }}</td>
+                                        <td>{{ $p->fasilitas }}</td>
+                                        <td>Rp{{ number_format($p->harga_per_pack,0,',','.') }}</td>
                                         <td>
-                                            @if($r->file_bukti_tf)
-                                                <a href="{{ asset('storage/'.$r->file_bukti_tf) }}" target="_blank">Lihat</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($r->status_reservasi_wisata == 'pesan' && $r->file_bukti_tf)
-                                                <form action="{{ route('bendahara.konfirmasi', $r->id) }}" method="POST" style="display:inline-block;">
-                                                    @csrf
-                                                    <button class="btn btn-sm btn-success" onclick="return confirm('Konfirmasi pembayaran ini?')">Konfirmasi</button>
-                                                </form>
-                                            @else
-                                                -
-                                            @endif
+                                            @for($f=1;$f<=5;$f++)
+                                                @php $foto = 'foto'.$f; @endphp
+                                                @if($p->$foto)
+                                                    <img src="{{ asset('storage/'.$p->$foto) }}" width="40">
+                                                @endif
+                                            @endfor
                                         </td>
                                     </tr>
                                     @endforeach
@@ -122,7 +162,7 @@
         <!-- Sidebar kanan: Info User -->
         <div class="col-12 col-lg-3 mt-4 mt-lg-0">
             <div class="card h-100">
-                <div class="card-header"><h5>Profil Bendahara</h5></div>
+                <div class="card-header"><h5>Profil Owner</h5></div>
                 <div class="card-body text-center">
                     @php
                     $user = Auth::user();
@@ -136,13 +176,11 @@
                     }
                     @endphp
                     <img src="{{ $foto }}" alt="Foto Profil" class="rounded-circle mb-3" width="80" height="80">
-                    @if(Auth::check())
-                        <h6 class="mb-0">{{ Auth::user()->name }}</h6>
-                        <small class="text-muted">{{ Auth::user()->email }}</small>
-                        <div class="mt-2">
-                            <span class="badge bg-primary">{{ ucfirst(Auth::user()->level) }}</span>
-                        </div>
-                    @endif
+                    <h6 class="mb-0">{{ $user->name }}</h6>
+                    <small class="text-muted">{{ $user->email }}</small>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">{{ ucfirst($user->level) }}</span>
+                    </div>
                 </div>
             </div>
         </div>

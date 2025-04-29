@@ -11,38 +11,32 @@ class CheckUserLevel
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next, ...$level)
+    public function handle(Request $request, Closure $next, ...$levels)
     {
-        if (Auth::check()) {
-            $userLevel = Auth::user()->level;
-    
-            // Jika level tidak sesuai
-            if (!in_array($userLevel, $level)) {
-                // Cegah redirect loop: jika sudah di dashboard yang sesuai, biarkan lewat
-                $currentPath = $request->path();
-    
-                switch ($userLevel) {
-                    case 'admin':
-                        if ($currentPath !== 'admin') return redirect('/admin');
-                        break;
-                    case 'bendahara':
-                        if ($currentPath !== 'bendahara') return redirect('/bendahara');
-                        break;
-                    case 'owner':
-                        if ($currentPath !== 'owner') return redirect('/owner');
-                        break;
-                    case 'pelanggan':
-                        if ($currentPath !== 'pelanggan') return redirect('/pelanggan');
-                        break;
-                    default:
-                        if ($currentPath !== 'home') return redirect('/home');
-                }
-            }
-        } else {
-            // Jika belum login, redirect ke login
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
-    
+
+        $userLevel = Auth::user()->level;
+
+        // Jika level user tidak ada di parameter middleware
+        if (!in_array($userLevel, $levels)) {
+            // Cegah redirect loop: jika sudah di dashboard sesuai level, lanjutkan saja
+            $dashboard = match($userLevel) {
+                'admin' => '/admin',
+                'bendahara' => '/bendahara',
+                'pemilik' => '/owner', // level 'pemilik' route '/owner'
+                'pelanggan' => '/',
+                default => '/login'
+            };
+
+            if ($request->is(ltrim($dashboard, '/'))) {
+                return $next($request);
+            }
+
+            return redirect($dashboard);
+        }
+
         return $next($request);
-    }                            
+    }
 }

@@ -27,6 +27,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'registration'])->name('registration');
     Route::post('/register', [AuthController::class, 'registerUser'])->name('register-user');
 }); 
+Route::get('/pelanggan/data-diri', [AuthController::class, 'pelangganDataDiriForm'])->name('auth.pelangganDataDiriForm');
+Route::post('/pelanggan/data-diri', [AuthController::class, 'pelangganDataDiriSimpan'])->name('auth.pelangganDataDiriSimpan');
+Route::get('/karyawan/data-diri', [AuthController::class, 'karyawanDataDiriForm'])->name('auth.karyawanDataDiriForm');
+Route::post('/karyawan/data-diri', [AuthController::class, 'karyawanDataDiriSimpan'])->name('auth.karyawanDataDiriSimpan');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // ================= ADMIN =================
@@ -90,16 +94,19 @@ Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(functio
 
     // Laporan Keuangan
     Route::prefix('be/laporan')->name('laporan.')->group(function () {
-        Route::get('/', [LaporanKeuanganController::class, 'index'])->name('index');
+        // Route::get('/', [LaporanKeuanganController::class, 'index'])->name('index');
         Route::get('/export-pdf', [LaporanKeuanganController::class, 'exportPdf'])->name('exportPdf');
         Route::get('/export-excel', [LaporanKeuanganController::class, 'exportExcel'])->name('exportExcel');
     });
 });
 
 // ================= OWNER =================
-Route::middleware(['auth', CheckUserLevel::class . ':owner'])->group(function () {
+Route::middleware(['auth', CheckUserLevel::class . ':pemilik'])->group(function () {
     Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
-    // ...route owner lain...
+    Route::prefix('be/laporan')->name('laporan.')->group(function () {
+        Route::get('/export-pdf', [LaporanKeuanganController::class, 'exportPdf'])->name('exportPdf');
+        Route::get('/export-excel', [LaporanKeuanganController::class, 'exportExcel'])->name('exportExcel');
+    });
 });
 
 // ================= PELANGGAN =================

@@ -2,67 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Reservasi;
+use App\Models\PaketWisata;
 
 class OwnerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        {
-            return view('be.owner.index', [
-                'title' => 'Owner'
-            ]);
-        }
-    }
+        // Statistik
+        $totalPendapatan = Reservasi::where('status_reservasi_wisata', 'dibayar')->sum('total_bayar');
+        $totalReservasi = Reservasi::count();
+        $totalReservasiDibayar = Reservasi::where('status_reservasi_wisata', 'dibayar')->count();
+        $totalReservasiMenunggu = Reservasi::where('status_reservasi_wisata', 'pesan')->count();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        // Grafik pendapatan bulanan
+        $pendapatanBulanan = Reservasi::selectRaw('MONTH(tgl_reservasi_wisata) as bulan, SUM(total_bayar) as total')
+            ->where('status_reservasi_wisata', 'dibayar')
+            ->groupBy('bulan')
+            ->orderBy('bulan')
+            ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        // Paket wisata paling laris
+        $paketLaris = Reservasi::selectRaw('id_paket, COUNT(*) as jumlah')
+            ->where('status_reservasi_wisata', 'dibayar')
+            ->groupBy('id_paket')
+            ->orderByDesc('jumlah')
+            ->with('paket')
+            ->first();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Semua reservasi (read-only)
+        $reservasi = Reservasi::with(['pelanggan', 'paket'])->orderByDesc('created_at')->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        // Semua paket wisata (read-only)
+        $paket = PaketWisata::all();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('be.owner.index', compact(
+            'totalPendapatan',
+            'totalReservasi',
+            'totalReservasiDibayar',
+            'totalReservasiMenunggu',
+            'pendapatanBulanan',
+            'paketLaris',
+            'reservasi',
+            'paket'
+        ));
     }
 }

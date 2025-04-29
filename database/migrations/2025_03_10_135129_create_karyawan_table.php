@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama_karyawan', 50);
             $table->text('alamat');
+            $table->text('foto')->nullable();
             $table->string('no_hp', 15);
             $table->enum('jabatan', ['administrasi', 'bendahara', 'pemilik']);
             $table->timestamps();

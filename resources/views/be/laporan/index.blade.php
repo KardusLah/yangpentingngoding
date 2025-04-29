@@ -1,5 +1,5 @@
 {{-- filepath: resources/views/be/laporan/index.blade.php --}}
-@extends('be.master')
+{{-- @extends('be.master')
 @section('content')
 <div class="page-heading">
     <h3>Laporan Keuangan</h3>
@@ -74,4 +74,4 @@ const chart = new Chart(ctx, {
     }
 });
 </script>
-@endsection
+@endsection --}}
