@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckUserLevel;
 use App\Http\Middleware\CheckPelanggan;
@@ -14,91 +13,97 @@ use App\Http\Controllers\PaketWisataController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\ObyekWisataController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PenginapanController;
+use App\Http\Controllers\LaporanKeuanganController;
 
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
+// Halaman utama
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/home', [HomeController::class, 'index']);
 
-// Login and Registration Routes
+// Login & Register
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'loginUser'])->name('login-user');
     Route::get('/register', [AuthController::class, 'registration'])->name('registration');
     Route::post('/register', [AuthController::class, 'registerUser'])->name('register-user');
 }); 
-
-// User authentication routes
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// Route dashboard admin dengan middleware auth dan level admin
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.index')->middleware(['auth', \App\Http\Middleware\CheckUserLevel::class . ':admin']);
-Route::get('/bendahara', [BendaharaController::class, 'index'])->middleware(['auth', CheckUserLevel::class . ':bendahara']);
-Route::get('/owner', [OwnerController::class, 'index'])->middleware(['auth', CheckUserLevel::class . ':owner']);
-Route::get('/profilepelanggan', [PelangganController::class, 'profilePelanggan'])->middleware(['auth', CheckPelanggan::class]);
-Route::post('/keluar', [PelangganController::class, 'keluar'])->middleware('auth:pelanggan');
+// ================= ADMIN =================
+Route::middleware(['auth', CheckUserLevel::class . ':admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 
-// Reservasi Backend Routes
-Route::prefix('be/reservasi')->name('reservasi.')->group(function () {
-    Route::get('/', [ReservasiController::class, 'index'])->name('index');
-    Route::get('/create', [ReservasiController::class, 'create'])->name('create');
-    Route::post('/', [ReservasiController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [ReservasiController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [ReservasiController::class, 'update'])->name('update');
-    Route::delete('/{id}', [ReservasiController::class, 'destroy'])->name('destroy');
+    // Manajemen Objek Wisata
+    Route::prefix('be/wisata')->name('wisata.')->group(function () {
+        Route::get('/', [ObyekWisataController::class, 'index'])->name('index');
+        Route::get('/create', [ObyekWisataController::class, 'create'])->name('create');
+        Route::post('/', [ObyekWisataController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [ObyekWisataController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ObyekWisataController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ObyekWisataController::class, 'destroy'])->name('destroy');
+    });
+
+    // Manajemen Penginapan
+    Route::prefix('be/penginapan')->name('penginapan.')->group(function () {
+        Route::get('/', [PenginapanController::class, 'index'])->name('index');
+        Route::get('/create', [PenginapanController::class, 'create'])->name('create');
+        Route::post('/', [PenginapanController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [PenginapanController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PenginapanController::class, 'update'])->name('update');
+        Route::delete('/{id}', [PenginapanController::class, 'destroy'])->name('destroy');
+    });
+
+    // Manajemen User & Hak Akses
+    Route::prefix('be/user')->name('user.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+    });
 });
 
-// Paket Wisata Backend Routes
-Route::prefix('be/paket')->name('paket.')->group(function () {
-    Route::get('/', [PaketWisataController::class, 'index'])->name('index');
-    Route::get('/create', [PaketWisataController::class, 'create'])->name('create');
-    Route::post('/', [PaketWisataController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [PaketWisataController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [PaketWisataController::class, 'update'])->name('update');
-    Route::delete('/{id}', [PaketWisataController::class, 'destroy'])->name('destroy');
+// ================= BENDAHARA =================
+Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(function () {
+    Route::get('/bendahara', [BendaharaController::class, 'index'])->name('bendahara.index');
+
+    // Manajemen Pembayaran Reservasi
+    Route::prefix('be/reservasi')->name('reservasi.')->group(function () {
+        Route::get('/', [ReservasiController::class, 'index'])->name('index');
+        Route::get('/create', [ReservasiController::class, 'create'])->name('create');
+        Route::post('/', [ReservasiController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [ReservasiController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ReservasiController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ReservasiController::class, 'destroy'])->name('destroy');
+    });
+
+    // Manajemen Paket Wisata
+    Route::prefix('be/paket')->name('paket.')->group(function () {
+        Route::get('/', [PaketWisataController::class, 'index'])->name('index');
+        Route::get('/create', [PaketWisataController::class, 'create'])->name('create');
+        Route::post('/', [PaketWisataController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [PaketWisataController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PaketWisataController::class, 'update'])->name('update');
+        Route::delete('/{id}', [PaketWisataController::class, 'destroy'])->name('destroy');
+    });
+
+    // Laporan Keuangan
+    Route::prefix('be/laporan')->name('laporan.')->group(function () {
+        Route::get('/', [LaporanKeuanganController::class, 'index'])->name('index');
+        Route::get('/export-pdf', [LaporanKeuanganController::class, 'exportPdf'])->name('exportPdf');
+        Route::get('/export-excel', [LaporanKeuanganController::class, 'exportExcel'])->name('exportExcel');
+    });
 });
 
-// Berita Routes
-Route::prefix('be/berita')->name('berita.')->group(function () {
-    Route::get('/', [BeritaController::class, 'index'])->name('index');
-    Route::get('/create', [BeritaController::class, 'create'])->name('create');
-    Route::post('/', [BeritaController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [BeritaController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [BeritaController::class, 'update'])->name('update');
-    Route::delete('/{id}', [BeritaController::class, 'destroy'])->name('destroy');
+// ================= OWNER =================
+Route::middleware(['auth', CheckUserLevel::class . ':owner'])->group(function () {
+    Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
+    // ...route owner lain...
 });
 
-// Obyek Wisata Routes
-Route::prefix('be/wisata')->name('wisata.')->group(function () {
-    Route::get('/', [ObyekWisataController::class, 'index'])->name('index');
-    Route::get('/create', [ObyekWisataController::class, 'create'])->name('create');
-    Route::post('/', [ObyekWisataController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [ObyekWisataController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [ObyekWisataController::class, 'update'])->name('update');
-    Route::delete('/{id}', [ObyekWisataController::class, 'destroy'])->name('destroy');
-});
-
-// Penginapan Routes
-use App\Http\Controllers\PenginapanController;
-
-Route::prefix('be/penginapan')->name('penginapan.')->group(function () {
-    Route::get('/', [PenginapanController::class, 'index'])->name('index');
-    Route::get('/create', [PenginapanController::class, 'create'])->name('create');
-    Route::post('/', [PenginapanController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [PenginapanController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [PenginapanController::class, 'update'])->name('update');
-    Route::delete('/{id}', [PenginapanController::class, 'destroy'])->name('destroy');
-});
-
-// Manajemen User & Hak Akses Routes
-Route::prefix('be/user')->name('user.')->group(function () {
-    Route::get('/', [UserController::class, 'index'])->name('index');
-    Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
-    Route::get('/be/user/create', [UserController::class, 'create'])->name('create');
-    Route::post('/be/user', [UserController::class, 'store'])->name('store');
-    Route::put('/{id}', [UserController::class, 'update'])->name('update');
-    Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+// ================= PELANGGAN =================
+Route::middleware(['auth', CheckPelanggan::class])->group(function () {
+    Route::get('/profilepelanggan', [PelangganController::class, 'profilePelanggan'])->name('profilepelanggan');
+    // ...route pelanggan lain...
 });

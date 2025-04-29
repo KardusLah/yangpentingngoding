@@ -61,72 +61,91 @@
     <div class="sidebar-menu">
         <ul class="menu">
             <li class="sidebar-title">Menu</li>
-            
-            <li class="sidebar-item {{ request()->is('admin') ? 'active' : '' }}">
-                <a href="{{ route('admin.index') }}" class='sidebar-link'>
-                    <i class="bi bi-grid-fill"></i>
-                    <span>Dashboard dan Statistik Keuangan</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item {{ request()->is('be/reservasi*') ? 'active' : '' }}">
-                <a href="{{ route('reservasi.index') }}" class='sidebar-link'>
-                    <i class="bi bi-calendar-check-fill"></i>
-                    <span>Manajemen Reservasi</span>
-                </a>
-            </li>
-            
-            <li class="sidebar-item {{ request()->is('be/paket*') ? 'active' : '' }}">
-                <a href="{{ route('paket.index') }}" class='sidebar-link'>
-                    <i class="bi bi-calendar-check-fill"></i>
-                    <span>Manajemen Paket Wisata</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item {{ request()->is('be/berita*') ? 'active' : '' }}">
-                <a href="{{ route('berita.index') }}" class='sidebar-link'>
-                    <i class="bi bi-megaphone-fill"></i>
-                    <span>Manajemen Berita & Promosi</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item {{ request()->is('be/wisata*') ? 'active' : '' }}">
-                <a href="{{ route('wisata.index') }}" class='sidebar-link'>
-                    <i class="bi bi-megaphone-fill"></i>
-                    <span>Manajemen Objek Wisata</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item {{ request()->is('be/penginapan*') ? 'active' : '' }}">
-                <a href="{{ route('penginapan.index') }}" class='sidebar-link'>
-                    <i class="bi bi-megaphone-fill"></i>
-                    <span>Manajemen Penginapan</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item {{ request()->is('be/user*') ? 'active' : '' }}">
-                <a href="{{ route('user.index') }}" class='sidebar-link'>
-                    <i class="bi bi-megaphone-fill"></i>
-                    <span>Manajemen Pengguna & Level Akses</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item">
-                @if(session('loginId'))
-                    <?php
-                        // Ambil data pengguna berdasarkan ID yang ada di session
-                        $user = \App\Models\User::find(session('loginId'));
-                    ?>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-danger w-100">
-                        <i class="bi bi-box-arrow-right"></i> Logout & Keamanan
-                    </button>
-                </form>
-            </li>
+            @if(Auth::check())
+                @if(Auth::user()->level == 'admin')
+                    {{-- Sidebar untuk Admin --}}
+                    <li class="sidebar-item {{ request()->is('admin') ? 'active' : '' }}">
+                        <a href="{{ route('admin.index') }}" class='sidebar-link'>
+                            <i class="bi bi-grid-fill"></i>
+                            <span>Dashboard dan Statistik Keuangan</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {{ request()->is('be/wisata*') ? 'active' : '' }}">
+                        <a href="{{ route('wisata.index') }}" class='sidebar-link'>
+                            <i class="bi bi-megaphone-fill"></i>
+                            <span>Manajemen Objek Wisata</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {{ request()->is('be/penginapan*') ? 'active' : '' }}">
+                        <a href="{{ route('penginapan.index') }}" class='sidebar-link'>
+                            <i class="bi bi-megaphone-fill"></i>
+                            <span>Manajemen Penginapan</span>
+                        </a>
+                    </li>
+                    {{-- ...menu admin lain... --}}
+                    <li class="sidebar-item {{ request()->is('be/user*') ? 'active' : '' }}">
+                        <a href="{{ route('user.index') }}" class='sidebar-link'>
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span>Manajemen Pengguna & Level Akses</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->level == 'bendahara')
+                    {{-- Sidebar untuk Bendahara --}}
+                    <li class="sidebar-item {{ request()->is('bendahara') ? 'active' : '' }}">
+                        <a href="{{ route('bendahara.index') }}" class='sidebar-link'>
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Dashboard Keuangan</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {{ request()->is('be/reservasi*') ? 'active' : '' }}">
+                        <a href="{{ route('reservasi.index') }}" class='sidebar-link'>
+                            <i class="bi bi-calendar-check-fill"></i>
+                            <span>Manajemen Pembayaran Reservasi</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {{ request()->is('be/paket*') ? 'active' : '' }}">
+                        <a href="{{ route('paket.index') }}" class='sidebar-link'>
+                            <i class="bi bi-calendar-check-fill"></i>
+                            <span>Manajemen Paket Wisata</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {{ request()->is('laporan*') ? 'active' : '' }}">
+                        <a href="{{ route('laporan.index') }}" class='sidebar-link'>
+                            <i class="bi bi-bar-chart"></i>
+                            <span>Laporan Keuangan</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->level == 'owner')
+                    {{-- Sidebar untuk Owner --}}
+                    <li class="sidebar-item {{ request()->is('owner') ? 'active' : '' }}">
+                        <a href="{{ route('owner.index') }}" class='sidebar-link'>
+                            <i class="bi bi-person-badge"></i>
+                            <span>Dashboard Owner</span>
+                        </a>
+                    </li>
+                    {{-- ...menu owner lain... --}}
+                @elseif(Auth::user()->level == 'pelanggan')
+                    {{-- Sidebar untuk Pelanggan --}}
+                    <li class="sidebar-item {{ request()->is('profilepelanggan') ? 'active' : '' }}">
+                        <a href="{{ route('profilepelanggan') }}" class='sidebar-link'>
+                            <i class="bi bi-person"></i>
+                            <span>Profil Saya</span>
+                        </a>
+                    </li>
+                    {{-- ...menu pelanggan lain... --}}
+                @endif
+                {{-- Logout --}}
+                <li class="sidebar-item">
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-box-arrow-right"></i> Logout & Keamanan
+                        </button>
+                    </form>
+                </li>
+            @endif
         </ul>
-    @endif
-</div>
+    </div>
         </div>
         <div id="main">
             <header class="mb-3">
