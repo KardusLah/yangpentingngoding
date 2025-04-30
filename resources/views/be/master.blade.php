@@ -82,7 +82,23 @@
                             <span>Manajemen Penginapan</span>
                         </a>
                     </li>
-                    {{-- ...menu admin lain... --}}
+                    <li class="sidebar-item {{ request()->is('be/berita*') ? 'active' : '' }}">
+                        <a href="{{ route('berita.index') }}" class='sidebar-link'>
+                            <i class="bi bi-megaphone-fill"></i>
+                            <span>Manajemen Berita</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item has-sub">
+                        <a href="#" class="sidebar-link"><i class="bi bi-tags"></i> <span>Manajemen Kategori</span></a>
+                        <ul class="submenu">
+                            <li class="submenu-item">
+                                <a href="{{ route('kategori-berita.index') }}">Kategori Berita</a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('kategori-wisata.index') }}">Kategori Objek Wisata</a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="sidebar-item {{ request()->is('be/user*') ? 'active' : '' }}">
                         <a href="{{ route('user.index') }}" class='sidebar-link'>
                             <i class="bi bi-person-lines-fill"></i>
@@ -168,6 +184,8 @@
 <!-- Need: Apexcharts -->
 <script src="{{ asset('be/assets/extensions/apexcharts/apexcharts.min.js') }}"></script>
 <script src="{{ asset('be/assets/static/js/pages/dashboard.js') }}"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

@@ -21,6 +21,7 @@ class AdminController extends Controller
             ->sum('total_bayar');
     
         $reservasiPerPaket = \App\Models\Reservasi::selectRaw('id_paket, COUNT(*) as jumlah')
+            ->whereIn('status_reservasi_wisata', ['dibayar', 'selesai'])
             ->groupBy('id_paket')->with('paket')->get();
     
         return view('be.admin.index', [

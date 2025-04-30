@@ -58,6 +58,7 @@
                 <option value="pesan">Pesan</option>
                 <option value="dibayar">Dibayar</option>
                 <option value="selesai">Selesai</option>
+                <option value="ditolak">Ditolak</option>
             </select>
         </div>
         <button class="btn btn-primary">Simpan</button>

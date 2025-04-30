@@ -99,4 +99,28 @@ class ReservasiController extends Controller
         $reservasi->delete();
         return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil dihapus!');
     }
+
+    public function terima($id)
+    {
+        $reservasi = \App\Models\Reservasi::findOrFail($id);
+        $reservasi->status_reservasi_wisata = 'dibayar';
+        $reservasi->save();
+        return back()->with('success', 'Reservasi diterima.');
+    }
+
+    public function tolak($id)
+    {
+        $reservasi = \App\Models\Reservasi::findOrFail($id);
+        $reservasi->status_reservasi_wisata = 'ditolak';
+        $reservasi->save();
+        return back()->with('success', 'Reservasi ditolak.');
+    }
+
+    public function selesai($id)
+    {
+        $reservasi = \App\Models\Reservasi::findOrFail($id);
+        $reservasi->status_reservasi_wisata = 'selesai';
+        $reservasi->save();
+        return back()->with('success', 'Reservasi selesai.');
+    }
 }

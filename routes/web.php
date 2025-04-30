@@ -57,6 +57,16 @@ Route::middleware(['auth', CheckUserLevel::class . ':admin'])->group(function ()
         Route::delete('/{id}', [PenginapanController::class, 'destroy'])->name('destroy');
     });
 
+    // Manajemen Berita
+    Route::prefix('be/berita')->name('berita.')->group(function () {
+        Route::get('/', [BeritaController::class, 'index'])->name('index');
+        Route::get('/create', [BeritaController::class, 'create'])->name('create');
+        Route::post('/', [BeritaController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [BeritaController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [BeritaController::class, 'update'])->name('update');
+        Route::delete('/{id}', [BeritaController::class, 'destroy'])->name('destroy');
+    });
+
     // Manajemen User & Hak Akses
     Route::prefix('be/user')->name('user.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
@@ -65,6 +75,26 @@ Route::middleware(['auth', CheckUserLevel::class . ':admin'])->group(function ()
         Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{id}', [UserController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+    });
+
+    // Kategori Berita
+    Route::prefix('be/kategori-berita')->name('kategori-berita.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\KategoriBeritaController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\KategoriBeritaController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\KategoriBeritaController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\KategoriBeritaController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\KategoriBeritaController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\KategoriBeritaController::class, 'destroy'])->name('destroy');
+    });
+
+    // Kategori Wisata
+    Route::prefix('be/kategori-wisata')->name('kategori-wisata.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\KategoriWisataController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\KategoriWisataController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\KategoriWisataController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\KategoriWisataController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\KategoriWisataController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\KategoriWisataController::class, 'destroy'])->name('destroy');
     });
 });
 
@@ -81,6 +111,9 @@ Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(functio
         Route::put('/{id}', [ReservasiController::class, 'update'])->name('update');
         Route::delete('/{id}', [ReservasiController::class, 'destroy'])->name('destroy');
     });
+    Route::post('/reservasi/{id}/terima', [ReservasiController::class, 'terima'])->name('reservasi.terima');
+    Route::post('/reservasi/{id}/tolak', [ReservasiController::class, 'tolak'])->name('reservasi.tolak');
+    Route::post('/reservasi/{id}/selesai', [ReservasiController::class, 'selesai'])->name('reservasi.selesai');
 
     // Manajemen Paket Wisata
     Route::prefix('be/paket')->name('paket.')->group(function () {

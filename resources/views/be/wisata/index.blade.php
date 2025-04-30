@@ -29,10 +29,12 @@
                     @for($f=1;$f<=5;$f++)
                         @php $foto = 'foto'.$f; @endphp
                         @if($w->$foto)
-                            <img src="{{ asset('storage/'.$w->$foto) }}" width="40">
+                            <img src="{{ asset('storage/'.$w->$foto) }}" width="40" style="cursor:pointer"
+                            onclick="showImgPreview('{{ asset('storage/'.$w->$foto) }}')">
                         @endif
                     @endfor
-                </td>
+                </td>>
+
                 <td>
                     <a href="{{ route('wisata.edit', $w->id) }}" class="btn btn-sm btn-warning">Edit</a>
                     <form action="{{ route('wisata.destroy', $w->id) }}" method="POST" style="display:inline-block;">
@@ -45,4 +47,21 @@
         </tbody>
     </table>
 </div>
+<!-- Modal Preview Gambar -->
+<div class="modal fade" id="imgPreviewModal" tabindex="-1" aria-labelledby="imgPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <img id="imgPreview" src="" alt="Preview" style="max-width:100%;max-height:70vh;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  function showImgPreview(src) {
+      document.getElementById('imgPreview').src = src;
+      var myModal = new bootstrap.Modal(document.getElementById('imgPreviewModal'));
+      myModal.show();
+  }
+  </script>
 @endsection

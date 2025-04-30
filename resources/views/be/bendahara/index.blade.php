@@ -91,16 +91,26 @@
                                                 <span class="badge bg-success">Dibayar</span>
                                             @elseif($r->status_reservasi_wisata == 'selesai')
                                                 <span class="badge bg-info">Selesai</span>
+                                            @elseif($r->status_reservasi_wisata == 'ditolak')
+                                                <span class="badge bg-danger">Ditolak</span>
                                             @endif
                                         </td>
                                         <td>
                                             @if($r->file_bukti_tf)
-                                                <a href="{{ asset('storage/'.$r->file_bukti_tf) }}" target="_blank">Lihat</a>
+                                            <img src="{{ asset('storage/'.$r->file_bukti_tf) }}" width="40" style="cursor:pointer"
+                                                 onclick="showImgPreview('{{ asset('storage/'.$r->file_bukti_tf) }}')">
                                             @else
                                                 -
                                             @endif
                                         </td>
                                         <td>
+                                            <a href="{{ route('reservasi.index') }}" class="btn btn-light btn-sm d-flex align-items-center">
+                                                Detail
+                                            </a>
+                                        </td>
+                                        
+                                        
+                                        {{-- <td>
                                             @if($r->status_reservasi_wisata == 'pesan' && $r->file_bukti_tf)
                                                 <form action="{{ route('bendahara.konfirmasi', $r->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
@@ -109,7 +119,7 @@
                                             @else
                                                 -
                                             @endif
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -169,4 +179,21 @@ const chart = new Chart(ctx, {
     }
 });
 </script>
+<!-- Modal Preview Gambar -->
+<div class="modal fade" id="imgPreviewModal" tabindex="-1" aria-labelledby="imgPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <img id="imgPreview" src="" alt="Preview" style="max-width:100%;max-height:70vh;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  function showImgPreview(src) {
+      document.getElementById('imgPreview').src = src;
+      var myModal = new bootstrap.Modal(document.getElementById('imgPreviewModal'));
+      myModal.show();
+  }
+  </script>
 @endsection

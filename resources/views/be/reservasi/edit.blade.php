@@ -66,6 +66,7 @@
                 <option value="pesan" {{ $reservasi->status_reservasi_wisata == 'pesan' ? 'selected' : '' }}>Pesan</option>
                 <option value="dibayar" {{ $reservasi->status_reservasi_wisata == 'dibayar' ? 'selected' : '' }}>Dibayar</option>
                 <option value="selesai" {{ $reservasi->status_reservasi_wisata == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                <option value="ditolak" {{ $reservasi->status_reservasi_wisata == 'ditolak' ? 'selected' : '' }}>Ditolak</option>                
             </select>
         </div>
         <button class="btn btn-primary">Update</button>

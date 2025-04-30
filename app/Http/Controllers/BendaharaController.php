@@ -13,30 +13,30 @@ class BendaharaController extends Controller
     public function index(Request $request)
     {
         // Statistik keuangan
-        $totalPendapatan = \App\Models\Reservasi::where('status_reservasi_wisata', 'dibayar')->sum('total_bayar');
-        $totalReservasiDibayar = \App\Models\Reservasi::where('status_reservasi_wisata', 'dibayar')->count();
+        $totalPendapatan = \App\Models\Reservasi::whereIn('status_reservasi_wisata', ['dibayar', 'selesai'])->sum('total_bayar');
+        $totalReservasiDibayar = \App\Models\Reservasi::whereIn('status_reservasi_wisata', ['dibayar', 'selesai'])->count();
         $totalReservasiMenunggu = \App\Models\Reservasi::where('status_reservasi_wisata', 'pesan')->count();
-    
-        // Grafik pendapatan bulanan (contoh)
+
+        // Grafik pendapatan bulanan
         $pendapatanBulanan = \App\Models\Reservasi::selectRaw('MONTH(tgl_reservasi_wisata) as bulan, SUM(total_bayar) as total')
-            ->where('status_reservasi_wisata', 'dibayar')
+            ->whereIn('status_reservasi_wisata', ['dibayar', 'selesai'])
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
-    
+
         // Daftar reservasi untuk manajemen pembayaran
         $reservasi = \App\Models\Reservasi::with(['pelanggan', 'paket'])
             ->orderByDesc('created_at')
             ->get();
-    
+
         // Paket wisata paling laris
         $paketLaris = \App\Models\Reservasi::selectRaw('id_paket, COUNT(*) as jumlah')
-            ->where('status_reservasi_wisata', 'dibayar')
+            ->whereIn('status_reservasi_wisata', ['dibayar', 'selesai'])
             ->groupBy('id_paket')
             ->orderByDesc('jumlah')
             ->with('paket')
             ->first();
-    
+
         return view('be.bendahara.index', compact(
             'totalPendapatan',
             'totalReservasiDibayar',
