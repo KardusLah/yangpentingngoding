@@ -21,6 +21,10 @@
             <label>Harga per Pack</label>
             <input type="number" name="harga_per_pack" class="form-control" value="{{ old('harga_per_pack', $paket->harga_per_pack) }}" required>
         </div>
+        <div class="mb-2">
+            <label>Durasi Paket (hari)</label>
+            <input type="number" name="durasi" class="form-control" min="1" value="{{ old('durasi', isset($paket) ? $paket->durasi : 1) }}" required>
+        </div>
         @for($i=1; $i<=5; $i++)
             @php $foto = 'foto'.$i; @endphp
             <div class="mb-2">

@@ -40,16 +40,6 @@
             </ul>
           </div>
         </div>
-        <div class="col-md-6 col-lg-2">
-          <div class="widget">
-            <h3 class="heading">Informasi</h3>
-            <ul class="links list-unstyled">
-              <li><a href="">Berita & Promosi</a></li>
-              <li><a href="">Objek Wisata</a></li>
-              <li><a href="">Penginapan</a></li>
-            </ul>
-          </div>
-        </div>
         <div class="col-md-6 col-lg-4">
           <div class="widget">
             <h3 class="heading">Contact</h3>
@@ -63,3 +53,18 @@
       </div>
     </div>
   </div>
+
+
+
+  <div class="inner dark">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-8 mb-3 mb-md-0 mx-auto">
+          <p>Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash; Designed with love by <a href="https://untree.co" class="link-highlight">Untree.co</a> <!-- License information: https://untree.co/license/ -->Distributed By <a href="https://themewagon.com" target="_blank" >ThemeWagon</a>
+          </p>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>

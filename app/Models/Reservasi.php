@@ -19,6 +19,9 @@ class Reservasi extends Model
         'total_bayar',
         'file_bukti_tf',
         'status_reservasi_wisata',
+        'tgl_mulai',
+        'tgl_akhir',
+        'lama_reservasi',
     ];
 
     public function pelanggan()

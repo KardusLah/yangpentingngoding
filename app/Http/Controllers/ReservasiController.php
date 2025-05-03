@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Reservasi;
 use App\Models\Pelanggan;
 use App\Models\PaketWisata;
+use App\Models\DiskonPaket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ReservasiController extends Controller
 {
@@ -19,8 +21,22 @@ class ReservasiController extends Controller
     public function create()
     {
         $pelanggan = Pelanggan::all();
-        $paket = PaketWisata::all();
-        return view('be.reservasi.create', compact('pelanggan', 'paket'));
+        $paket = PaketWisata::with(['reservasiAktif'])->get();
+
+        // Buat array tanggal penuh per paket
+        $tanggalPenuh = [];
+        foreach ($paket as $p) {
+            $tanggalPenuh[$p->id] = [];
+            foreach ($p->reservasiAktif as $r) {
+                $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
+                $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
+                for ($d = 0; $d <= $mulai->diffInDays($akhir); $d++) {
+                    $tanggalPenuh[$p->id][] = $mulai->copy()->addDays($d)->toDateString();
+                }
+            }
+        }
+
+        return view('be.reservasi.create', compact('pelanggan', 'paket', 'tanggalPenuh'));
     }
 
     public function store(Request $request)
@@ -28,17 +44,62 @@ class ReservasiController extends Controller
         $request->validate([
             'id_pelanggan' => 'required',
             'id_paket' => 'required',
-            'tgl_reservasi_wisata' => 'required|date',
-            'harga' => 'required|numeric',
-            'jumlah_peserta' => 'required|integer',
-            'diskon' => 'nullable|numeric',
-            'nilai_diskon' => 'nullable|numeric',
-            'total_bayar' => 'required|numeric',
-            'file_bukti_tf' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-            'status_reservasi_wisata' => 'required',
+            'tgl_mulai' => 'required|date',
+            'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
+            'jumlah_peserta' => 'required|integer|min:1',
         ]);
 
+        $paket = PaketWisata::findOrFail($request->id_paket);
+        $tglMulai = Carbon::parse($request->tgl_mulai);
+        $tglAkhir = Carbon::parse($request->tgl_akhir);
+        $lama = $tglMulai->diffInDays($tglAkhir) + 1;
+
+        // Validasi lama reservasi tidak melebihi durasi paket
+        if ($lama > $paket->durasi) {
+            return back()->withErrors(['tgl_akhir' => 'Durasi maksimal reservasi untuk paket ini adalah '.$paket->durasi.' hari.'])->withInput();
+        }
+
+        // Validasi tanggal penuh
+        $reservasiAktif = Reservasi::where('id_paket', $paket->id)
+            ->whereNotIn('status_reservasi_wisata', ['ditolak', 'selesai'])
+            ->get();
+
+        for ($d = 0; $d < $lama; $d++) {
+            $tglCek = $tglMulai->copy()->addDays($d)->toDateString();
+            foreach ($reservasiAktif as $r) {
+                $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
+                $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
+                if ($tglCek >= $mulai->toDateString() && $tglCek <= $akhir->toDateString()) {
+                    return back()->withErrors(['tgl_mulai' => 'Tanggal '.$tglCek.' sudah penuh, silakan pilih tanggal lain.'])->withInput();
+                }
+            }
+        }
+
+        // Hitung harga & diskon
+        $total_bayar = $paket->harga_per_pack * $lama * $request->jumlah_peserta;
+
+        // Ambil diskon aktif & berlaku
+        $diskon = DiskonPaket::where('paket_id', $paket->id)
+            ->where('aktif', 1)
+            ->where(function($q) use ($tglMulai) {
+                $q->whereNull('tanggal_mulai')->orWhere('tanggal_mulai', '<=', $tglMulai->toDateString());
+            })
+            ->where(function($q) use ($tglMulai) {
+                $q->whereNull('tanggal_akhir')->orWhere('tanggal_akhir', '>=', $tglMulai->toDateString());
+            })
+            ->first();
+
+        $persen_diskon = $diskon ? $diskon->persen : 0;
+        $nilai_diskon = $persen_diskon > 0 ? ($total_bayar * $persen_diskon / 100) : 0;
+        $total_bayar_setelah_diskon = $total_bayar - $nilai_diskon;
+
         $data = $request->all();
+        $data['lama_reservasi'] = $lama;
+        $data['harga'] = $paket->harga_per_pack;
+        $data['total_bayar'] = $total_bayar_setelah_diskon;
+        $data['diskon'] = $persen_diskon;
+        $data['nilai_diskon'] = $nilai_diskon;
+        $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
 
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
@@ -53,8 +114,23 @@ class ReservasiController extends Controller
     {
         $reservasi = Reservasi::findOrFail($id);
         $pelanggan = Pelanggan::all();
-        $paket = PaketWisata::all();
-        return view('be.reservasi.edit', compact('reservasi', 'pelanggan', 'paket'));
+        $paket = PaketWisata::with(['reservasiAktif'])->get();
+
+        // Buat array tanggal penuh per paket (kecuali reservasi ini sendiri)
+        $tanggalPenuh = [];
+        foreach ($paket as $p) {
+            $tanggalPenuh[$p->id] = [];
+            foreach ($p->reservasiAktif as $r) {
+                if ($r->id == $reservasi->id) continue;
+                $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
+                $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
+                for ($d = 0; $d <= $mulai->diffInDays($akhir); $d++) {
+                    $tanggalPenuh[$p->id][] = $mulai->copy()->addDays($d)->toDateString();
+                }
+            }
+        }
+
+        return view('be.reservasi.edit', compact('reservasi', 'pelanggan', 'paket', 'tanggalPenuh'));
     }
 
     public function update(Request $request, $id)
@@ -64,20 +140,63 @@ class ReservasiController extends Controller
         $request->validate([
             'id_pelanggan' => 'required',
             'id_paket' => 'required',
-            'tgl_reservasi_wisata' => 'required|date',
-            'harga' => 'required|numeric',
-            'jumlah_peserta' => 'required|integer',
-            'diskon' => 'nullable|numeric',
-            'nilai_diskon' => 'nullable|numeric',
-            'total_bayar' => 'required|numeric',
-            'file_bukti_tf' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-            'status_reservasi_wisata' => 'required',
+            'tgl_mulai' => 'required|date',
+            'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
+            'jumlah_peserta' => 'required|integer|min:1',
         ]);
 
-        $data = $request->except('_token', '_method');
+        $paket = PaketWisata::findOrFail($request->id_paket);
+        $tglMulai = Carbon::parse($request->tgl_mulai);
+        $tglAkhir = Carbon::parse($request->tgl_akhir);
+        $lama = $tglMulai->diffInDays($tglAkhir) + 1;
+
+        if ($lama > $paket->durasi) {
+            return back()->withErrors(['tgl_akhir' => 'Durasi maksimal reservasi untuk paket ini adalah '.$paket->durasi.' hari.'])->withInput();
+        }
+
+        // Validasi tanggal penuh (abaikan reservasi ini sendiri)
+        $reservasiAktif = Reservasi::where('id_paket', $paket->id)
+            ->where('id', '!=', $reservasi->id)
+            ->whereNotIn('status_reservasi_wisata', ['ditolak', 'selesai'])
+            ->get();
+
+        for ($d = 0; $d < $lama; $d++) {
+            $tglCek = $tglMulai->copy()->addDays($d)->toDateString();
+            foreach ($reservasiAktif as $r) {
+                $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
+                $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
+                if ($tglCek >= $mulai->toDateString() && $tglCek <= $akhir->toDateString()) {
+                    return back()->withErrors(['tgl_mulai' => 'Tanggal '.$tglCek.' sudah penuh, silakan pilih tanggal lain.'])->withInput();
+                }
+            }
+        }
+
+        // Hitung harga & diskon
+        $total_bayar = $paket->harga_per_pack * $lama * $request->jumlah_peserta;
+
+        // Ambil diskon aktif & berlaku
+        $diskon = DiskonPaket::where('paket_id', $paket->id)
+            ->where('aktif', 1)
+            ->where(function($q) use ($tglMulai) {
+                $q->whereNull('tanggal_mulai')->orWhere('tanggal_mulai', '<=', $tglMulai->toDateString());
+            })
+            ->where(function($q) use ($tglMulai) {
+                $q->whereNull('tanggal_akhir')->orWhere('tanggal_akhir', '>=', $tglMulai->toDateString());
+            })
+            ->first();
+
+        $persen_diskon = $diskon ? $diskon->persen : 0;
+        $nilai_diskon = $persen_diskon > 0 ? ($total_bayar * $persen_diskon / 100) : 0;
+        $total_bayar_setelah_diskon = $total_bayar - $nilai_diskon;
+
+        $data = $request->all();
+        $data['lama_reservasi'] = $lama;
+        $data['harga'] = $paket->harga_per_pack;
+        $data['total_bayar'] = $total_bayar_setelah_diskon;
+        $data['diskon'] = $persen_diskon;
+        $data['nilai_diskon'] = $nilai_diskon;
 
         if ($request->hasFile('file_bukti_tf')) {
-            // Hapus file lama jika ada
             if ($reservasi->file_bukti_tf && Storage::disk('public')->exists($reservasi->file_bukti_tf)) {
                 Storage::disk('public')->delete($reservasi->file_bukti_tf);
             }
@@ -92,7 +211,6 @@ class ReservasiController extends Controller
     public function destroy($id)
     {
         $reservasi = Reservasi::findOrFail($id);
-        // Hapus file bukti transfer jika ada
         if ($reservasi->file_bukti_tf && Storage::disk('public')->exists($reservasi->file_bukti_tf)) {
             Storage::disk('public')->delete($reservasi->file_bukti_tf);
         }
@@ -100,9 +218,66 @@ class ReservasiController extends Controller
         return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil dihapus!');
     }
 
+    // Simulasi pemesanan
+    public function simulasi(Request $request)
+    {
+        $paket = PaketWisata::with(['reservasiAktif'])->get();
+
+        // Tanggal penuh per paket
+        $tanggalPenuh = [];
+        foreach ($paket as $p) {
+            $tanggalPenuh[$p->id] = [];
+            foreach ($p->reservasiAktif as $r) {
+                $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
+                $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
+                for ($d = 0; $d <= $mulai->diffInDays($akhir); $d++) {
+                    $tanggalPenuh[$p->id][] = $mulai->copy()->addDays($d)->toDateString();
+                }
+            }
+        }
+
+        $simulasi = null;
+        if ($request->isMethod('post')) {
+            $paketId = $request->id_paket;
+            $tanggalMulai = $request->tanggal_mulai;
+            $tanggalAkhir = $request->tanggal_akhir;
+            $paketDipilih = $paket->where('id', $paketId)->first();
+            $harga = $paketDipilih ? $paketDipilih->harga_per_pack : 0;
+            $durasi = $paketDipilih ? $paketDipilih->durasi : 1;
+
+            $bisa = true;
+            $tanggalCek = [];
+            if ($paketDipilih && $tanggalMulai && $tanggalAkhir) {
+                $mulai = Carbon::parse($tanggalMulai);
+                $akhir = Carbon::parse($tanggalAkhir);
+                $lama = $mulai->diffInDays($akhir) + 1;
+                if ($lama > $durasi) $bisa = false;
+                for ($i = 0; $i < $lama; $i++) {
+                    $tgl = $mulai->copy()->addDays($i)->toDateString();
+                    $tanggalCek[] = $tgl;
+                    if (in_array($tgl, $tanggalPenuh[$paketId])) {
+                        $bisa = false;
+                    }
+                }
+            }
+            $simulasi = [
+                'paket' => $paketDipilih,
+                'harga' => $harga,
+                'tanggal_mulai' => $tanggalMulai,
+                'tanggal_akhir' => $tanggalAkhir,
+                'tanggalCek' => $tanggalCek,
+                'lama' => isset($lama) ? $lama : 0,
+                'total' => isset($lama) ? $harga * $lama : 0,
+                'bisa' => $bisa,
+            ];
+        }
+
+        return view('be.reservasi.simulasi', compact('paket', 'tanggalPenuh', 'simulasi'));
+    }
+
     public function terima($id)
     {
-        $reservasi = \App\Models\Reservasi::findOrFail($id);
+        $reservasi = Reservasi::findOrFail($id);
         $reservasi->status_reservasi_wisata = 'dibayar';
         $reservasi->save();
         return back()->with('success', 'Reservasi diterima.');
@@ -110,7 +285,7 @@ class ReservasiController extends Controller
 
     public function tolak($id)
     {
-        $reservasi = \App\Models\Reservasi::findOrFail($id);
+        $reservasi = Reservasi::findOrFail($id);
         $reservasi->status_reservasi_wisata = 'ditolak';
         $reservasi->save();
         return back()->with('success', 'Reservasi ditolak.');
@@ -118,9 +293,31 @@ class ReservasiController extends Controller
 
     public function selesai($id)
     {
-        $reservasi = \App\Models\Reservasi::findOrFail($id);
+        $reservasi = Reservasi::findOrFail($id);
         $reservasi->status_reservasi_wisata = 'selesai';
         $reservasi->save();
         return back()->with('success', 'Reservasi selesai.');
+    }
+
+    public function bulk(Request $request, $action)
+    {
+        $ids = $request->selected;
+        if (!$ids) return back()->with('error', 'Tidak ada data dipilih.');
+
+        switch ($action) {
+            case 'delete':
+                Reservasi::whereIn('id', $ids)->delete();
+                break;
+            case 'terima':
+                Reservasi::whereIn('id', $ids)->update(['status_reservasi_wisata' => 'dibayar']);
+                break;
+            case 'tolak':
+                Reservasi::whereIn('id', $ids)->update(['status_reservasi_wisata' => 'ditolak']);
+                break;
+            case 'selesai':
+                Reservasi::whereIn('id', $ids)->update(['status_reservasi_wisata' => 'selesai']);
+                break;
+        }
+        return back()->with('success', 'Aksi massal berhasil dijalankan.');
     }
 }

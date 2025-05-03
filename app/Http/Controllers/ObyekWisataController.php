@@ -89,4 +89,6 @@ class ObyekWisataController extends Controller
         $wisata->delete();
         return redirect()->route('wisata.index')->with('success', 'Objek wisata berhasil dihapus');
     }
+
+    
 }

@@ -18,8 +18,12 @@
             <textarea name="fasilitas" class="form-control" required></textarea>
         </div>
         <div class="mb-2">
-            <label>Harga per Pack</label>
+            <label>Harga per Hari</label>
             <input type="number" name="harga_per_pack" class="form-control" required>
+        </div>
+        <div class="mb-2">
+            <label>Durasi Paket (hari)</label>
+            <input type="number" name="durasi" class="form-control" min="1" value="{{ old('durasi', isset($paket) ? $paket->durasi : 1) }}" required>
         </div>
         <div class="mb-2">
             <label>Foto 1</label>

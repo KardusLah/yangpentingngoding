@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckUserLevel;
 use App\Http\Middleware\CheckPelanggan;
@@ -15,18 +16,27 @@ use App\Http\Controllers\ObyekWisataController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PenginapanController;
 use App\Http\Controllers\LaporanKeuanganController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DiskonPaketController;
 
-// Halaman utama
-Route::get('/', [HomeController::class, 'index']);
+// ================= FRONTEND / UMUM =================
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index']);
+Route::get('/paket', [PaketWisataController::class, 'frontendIndex'])->name('fe.paket.index');
+Route::get('/paket/{id}', [PaketWisataController::class, 'show'])->name('fe.paket.show');
+Route::get('/penginapan', [PenginapanController::class, 'frontendIndex'])->name('fe.penginapan.index');
+Route::get('/penginapan/{id}', [PenginapanController::class, 'show'])->name('fe.penginapan.show');
+Route::get('/berita', [BeritaController::class, 'frontendIndex'])->name('fe.berita.index');
+Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 
-// Login & Register
+// ================= AUTH =================
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'loginUser'])->name('login-user');
     Route::get('/register', [AuthController::class, 'registration'])->name('registration');
     Route::post('/register', [AuthController::class, 'registerUser'])->name('register-user');
-}); 
+});
 Route::get('/pelanggan/data-diri', [AuthController::class, 'pelangganDataDiriForm'])->name('auth.pelangganDataDiriForm');
 Route::post('/pelanggan/data-diri', [AuthController::class, 'pelangganDataDiriSimpan'])->name('auth.pelangganDataDiriSimpan');
 Route::get('/karyawan/data-diri', [AuthController::class, 'karyawanDataDiriForm'])->name('auth.karyawanDataDiriForm');
@@ -36,6 +46,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 // ================= ADMIN =================
 Route::middleware(['auth', CheckUserLevel::class . ':admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    // Route::prefix('be/paket')->name('paket.')->group(function () {
+    //     Route::get('/', [PaketWisataController::class, 'index'])->name('index');
+        // ...route backend lain...
+
 
     // Manajemen Objek Wisata
     Route::prefix('be/wisata')->name('wisata.')->group(function () {
@@ -97,6 +111,7 @@ Route::middleware(['auth', CheckUserLevel::class . ':admin'])->group(function ()
         Route::delete('/{id}', [\App\Http\Controllers\KategoriWisataController::class, 'destroy'])->name('destroy');
     });
 });
+// });
 
 // ================= BENDAHARA =================
 Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(function () {
@@ -110,10 +125,12 @@ Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(functio
         Route::get('/{id}/edit', [ReservasiController::class, 'edit'])->name('edit');
         Route::put('/{id}', [ReservasiController::class, 'update'])->name('update');
         Route::delete('/{id}', [ReservasiController::class, 'destroy'])->name('destroy');
+        Route::match(['get', 'post'], '/simulasi', [ReservasiController::class, 'simulasi'])->name('simulasi');
+        Route::post('bulk/{action}', [ReservasiController::class, 'bulk'])->name('bulk');
     });
     Route::post('/reservasi/{id}/terima', [ReservasiController::class, 'terima'])->name('reservasi.terima');
     Route::post('/reservasi/{id}/tolak', [ReservasiController::class, 'tolak'])->name('reservasi.tolak');
-    Route::post('/reservasi/{id}/selesai', [ReservasiController::class, 'selesai'])->name('reservasi.selesai');
+    Route::post('/reservasi/{id}/selesai', [ReservasiController::class, 'selesai'])->name('reservasi.selesai');;
 
     // Manajemen Paket Wisata
     Route::prefix('be/paket')->name('paket.')->group(function () {
@@ -127,10 +144,14 @@ Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(functio
 
     // Laporan Keuangan
     Route::prefix('be/laporan')->name('laporan.')->group(function () {
-        // Route::get('/', [LaporanKeuanganController::class, 'index'])->name('index');
         Route::get('/export-pdf', [LaporanKeuanganController::class, 'exportPdf'])->name('exportPdf');
         Route::get('/export-excel', [LaporanKeuanganController::class, 'exportExcel'])->name('exportExcel');
     });
+
+    Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(function () {
+        Route::get('be/diskon', [DiskonPaketController::class, 'index'])->name('diskon.index');
+        Route::post('be/diskon/update', [DiskonPaketController::class, 'update'])->name('diskon.update');
+});
 });
 
 // ================= OWNER =================

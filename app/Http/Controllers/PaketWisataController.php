@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\PaketWisata;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\KategoriWisata;
+use Carbon\Carbon;
 
 class PaketWisataController extends Controller
 {
@@ -25,6 +27,7 @@ class PaketWisataController extends Controller
             'deskripsi' => 'required',
             'fasilitas' => 'required',
             'harga_per_pack' => 'required|numeric',
+            'durasi' => 'required|integer|min:1',
             'foto1' => 'nullable|image',
             'foto2' => 'nullable|image',
             'foto3' => 'nullable|image',
@@ -58,6 +61,7 @@ class PaketWisataController extends Controller
             'deskripsi' => 'required',
             'fasilitas' => 'required',
             'harga_per_pack' => 'required|numeric',
+            'durasi' => 'required|integer|min:1',
             'foto1' => 'nullable|image',
             'foto2' => 'nullable|image',
             'foto3' => 'nullable|image',
@@ -81,8 +85,7 @@ class PaketWisataController extends Controller
     public function destroy($id)
     {
         $paket = PaketWisata::findOrFail($id);
-        $paket->delete();
-        return redirect()->route('paket.index')->with('success', 'Paket berhasil dihapus');
+        // Hapus file foto jika ada
         for ($i = 1; $i <= 5; $i++) {
             $foto = 'foto' . $i;
             if ($paket->$foto && Storage::disk('public')->exists($paket->$foto)) {
@@ -90,5 +93,26 @@ class PaketWisataController extends Controller
             }
         }
         $paket->delete();
+        return redirect()->route('paket.index')->with('success', 'Paket berhasil dihapus');
+    }
+
+    public function frontendIndex()
+    {
+        $pakets = PaketWisata::with(['reservasiAktif'])->get();
+        $kategori_wisata = KategoriWisata::all();
+    
+        // Buat array tanggal penuh per paket
+        $tanggalPenuh = [];
+        foreach ($pakets as $paket) {
+            $tanggalPenuh[$paket->id] = [];
+            foreach ($paket->reservasiAktif as $reservasi) {
+                $mulai = Carbon::parse($reservasi->tgl_reservasi_wisata);
+                for ($i = 0; $i < $paket->durasi; $i++) {
+                    $tanggalPenuh[$paket->id][] = $mulai->copy()->addDays($i)->toDateString();
+                }
+            }
+        }
+    
+        return view('fe.paket.index', compact('pakets', 'kategori_wisata', 'tanggalPenuh'));
     }
 }

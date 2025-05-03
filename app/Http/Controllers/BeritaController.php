@@ -72,4 +72,18 @@ class BeritaController extends Controller
         $berita->delete();
         return redirect()->route('berita.index')->with('success', 'Berita berhasil dihapus');
     }
+
+    // Untuk halaman daftar berita di frontend
+    public function frontendIndex()
+    {
+        $berita = \App\Models\Berita::orderBy('tgl_post', 'desc')->get();
+        return view('fe.berita.index', compact('berita'));
+    }
+
+    // Untuk halaman detail berita di frontend
+    public function show($id)
+    {
+        $news = \App\Models\Berita::findOrFail($id);
+        return view('fe.berita.show', compact('news'));
+    }
 }

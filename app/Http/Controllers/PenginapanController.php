@@ -85,4 +85,18 @@ class PenginapanController extends Controller
         $penginapan->delete();
         return redirect()->route('penginapan.index')->with('success', 'Penginapan berhasil dihapus');
     }
+
+    // Untuk halaman daftar penginapan di frontend
+    public function frontendIndex()
+    {
+        $penginapan = \App\Models\Penginapan::all();
+        return view('fe.penginapan.index', compact('penginapan'));
+    }
+
+    // Untuk halaman detail penginapan di frontend
+    public function show($id)
+    {
+        $item = \App\Models\Penginapan::findOrFail($id);
+        return view('fe.penginapan.show', compact('item'));
+    }
 }

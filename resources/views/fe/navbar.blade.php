@@ -1,38 +1,41 @@
-<div class="site-mobile-menu site-navbar-target">
-		<div class="site-mobile-menu-header">
-			<div class="site-mobile-menu-close">
-				<span class="icofont-close js-menu-toggle"></span>
-			</div>
-		</div>
-		<div class="site-mobile-menu-body"></div>
-	</div>
-
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ url('/') }}">Tour</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Beranda</a></li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="reservasiDropdown" data-toggle="dropdown">Reservasi</a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url('/reservasi') }}">Pesan Paket Wisata</a>
-            <a class="dropdown-item" href="{{ url('/riwayat') }}">Riwayat Reservasi</a>
-            <a class="dropdown-item" href="{{ url('/pembayaran') }}">Unggah Bukti Pembayaran</a>
-          </div>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="informasiDropdown" data-toggle="dropdown">Informasi</a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url('/berita') }}">Berita & Promosi</a>
-            <a class="dropdown-item" href="{{ url('/pencarian') }}">Pencarian Objek Wisata</a>
-            <a class="dropdown-item" href="{{ url('/penginapan') }}">Informasi Penginapan</a>
-          </div>
-        </li>
-        <li class="nav-item"><a class="nav-link" href="{{ url('/about') }}">Tentang Kami</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Kontak</a></li>
+<nav class="site-nav">
+  <div class="container">
+    <div class="site-navigation">
+      <a href="{{ route('home') }}" class="logo m-0">Tour <span class="text-primary">.</span></a>
+      <ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu float-right align-items-center">
+        <li class="{{ request()->routeIs('home') ? 'active' : '' }}"><a href="{{ route('home') }}">Home</a></li>
+        <li><a href="{{ route('fe.paket.index') }}">Paket Wisata</a></li>
+        <li><a href="">Obyek Wisata</a></li>
+        {{-- {{ route('obyek.index') }} --}}
+        <li><a href="{{ route('fe.penginapan.index') }}">Penginapan</a></li>
+        <li><a href="{{ route('fe.berita.index') }}">Berita</a></li>
+        @guest
+          <li>
+            <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm px-3 mr-2">Login</a>
+            <a href="{{ route('registration') }}" class="btn btn-primary btn-sm px-3">Sign In</a>
+          </li>
+        @else
+          <li>
+            <a href="{{ route('home') }}" class="d-inline-block align-middle">
+              <img src="{{ Auth::user()->foto ?? asset('fe/assets/images/user.png') }}" alt="Profil" class="rounded-circle" width="32" height="32">
+            </a>
+          </li>
+        @endguest
       </ul>
+      {{-- Tombol login/sign in untuk mobile --}}
+      <div class="d-inline-block d-lg-none float-right">
+        @guest
+          <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm px-3 mr-2">Login</a>
+          <a href="{{ route('registration') }}" class="btn btn-primary btn-sm px-3">Sign In</a>
+        @else
+          <a href="{{ route('profile') }}" class="d-inline-block align-middle">
+            <img src="{{ Auth::user()->foto ?? asset('fe/assets/images/user.png') }}" alt="Profil" class="rounded-circle" width="32" height="32">
+          </a>
+        @endguest
+      </div>
+      <a href="#" class="burger ml-auto float-right site-menu-toggle js-menu-toggle d-inline-block d-lg-none light" data-toggle="collapse" data-target="#main-navbar">
+        <span></span>
+      </a>
     </div>
-  </nav>
+  </div>
+</nav>

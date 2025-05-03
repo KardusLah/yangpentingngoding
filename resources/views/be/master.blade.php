@@ -105,7 +105,7 @@
                             <span>Manajemen Pengguna & Level Akses</span>
                         </a>
                     </li>
-                @elseif(Auth::user()->level == 'bendahara')
+                    @elseif(Auth::user()->level == 'bendahara')
                     {{-- Sidebar untuk Bendahara --}}
                     <li class="sidebar-item {{ request()->is('bendahara') ? 'active' : '' }}">
                         <a href="{{ route('bendahara.index') }}" class='sidebar-link'>
@@ -125,12 +125,12 @@
                             <span>Manajemen Paket Wisata</span>
                         </a>
                     </li>
-                    {{-- <li class="sidebar-item {{ request()->is('laporan*') ? 'active' : '' }}">
-                        <a href="{{ route('laporan.index') }}" class='sidebar-link'>
-                            <i class="bi bi-bar-chart"></i>
-                            <span>Laporan Keuangan</span>
+                    <li class="sidebar-item {{ request()->is('be/diskon*') ? 'active' : '' }}">
+                        <a href="{{ route('diskon.index') }}" class='sidebar-link'>
+                            <i class="bi bi-percent"></i>
+                            <span>Diskon Paket Wisata</span>
                         </a>
-                    </li> --}}
+                    </li>
                 @elseif(Auth::user()->level == 'pemilik')
                     <li class="sidebar-item {{ request()->is('pemilik') ? 'active' : '' }}">
                         <a href="{{ route('owner.index') }}" class='sidebar-link'>
@@ -187,6 +187,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+@stack('scripts')
 </body>
 
 </html>

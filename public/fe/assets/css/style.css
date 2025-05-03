@@ -1384,3 +1384,43 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
       content: "\f095"; }
     .site-footer ul.quick-info li.address:before {
       content: "\e8b4"; }
+    .site-nav .btn-primary {
+      background: #1A374D;
+      border-color: #1A374D;
+    }
+    .site-nav {
+      background: #6998AB;
+    }
+    .site-nav .btn-outline-primary {
+      color: #fff;
+      border-color: #fff;
+    }
+    .site-nav .btn-outline-primary:hover {
+      background: #B1D0E0;
+      color: #fff;
+    }
+    .btn.btn-outline-third.btn-sm {
+      background: #1A374D;
+      border-color: #1A374D;
+      color: #fff;
+    }
+    @media (max-width: 767.98px) {
+      .search-bar-custom {
+        margin-top: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+        flex-direction: column !important;
+        padding: 1.2rem 1rem !important;
+        border-radius: 1.5rem !important;
+      }
+      .search-bar-custom input,
+      .search-bar-custom select {
+        margin-right: 0 !important;
+        margin-bottom: 0.75rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .search-bar-custom button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
