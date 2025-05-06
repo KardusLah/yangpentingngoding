@@ -8,16 +8,19 @@ use App\Models\PaketWisata;
 use App\Models\DiskonPaket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class ReservasiController extends Controller
 {
+    // Backend: List reservasi
     public function index()
     {
         $reservasi = Reservasi::with(['pelanggan', 'paket'])->get();
         return view('be.reservasi.index', compact('reservasi'));
     }
 
+    // Backend: Form tambah reservasi
     public function create()
     {
         $pelanggan = Pelanggan::all();
@@ -39,14 +42,38 @@ class ReservasiController extends Controller
         return view('be.reservasi.create', compact('pelanggan', 'paket', 'tanggalPenuh'));
     }
 
+    // Store reservasi (FE & BE)
     public function store(Request $request)
     {
+        // Ambil user login (multi-role)
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login')->withErrors(['login' => 'Silakan login untuk melakukan reservasi.']);
+        }
+
+        // Cek level user yang boleh booking
+        if (!in_array($user->level, ['pelanggan', 'admin', 'bendahara', 'owner', 'pemilik'])) {
+            return back()->withErrors(['login' => 'Akun Anda tidak diizinkan melakukan reservasi.']);
+        }
+
+        // Ambil id_pelanggan
+        $idPelanggan = null;
+        if ($user->level == 'pelanggan' && method_exists($user, 'pelanggan') && $user->pelanggan) {
+            $idPelanggan = $user->pelanggan->id;
+        } else {
+            // Untuk admin, bendahara, owner, gunakan id user sebagai id_pelanggan (atau sesuaikan kebutuhan)
+            $idPelanggan = $user->id;
+        }
+        $request->merge(['id_pelanggan' => $idPelanggan]);
+
         $request->validate([
             'id_pelanggan' => 'required',
-            'id_paket' => 'required',
+            'id_paket' => 'required|exists:paket_wisata,id',
             'tgl_mulai' => 'required|date',
             'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_peserta' => 'required|integer|min:1',
+            'metode_pembayaran' => 'nullable|string',
+            'file_bukti_tf' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $paket = PaketWisata::findOrFail($request->id_paket);
@@ -100,6 +127,7 @@ class ReservasiController extends Controller
         $data['diskon'] = $persen_diskon;
         $data['nilai_diskon'] = $nilai_diskon;
         $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
+        $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'menunggu';
 
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
@@ -107,9 +135,15 @@ class ReservasiController extends Controller
 
         Reservasi::create($data);
 
-        return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil ditambahkan!');
+        // Redirect sesuai asal (FE/BE)
+        if (\Request::route()->getName() === 'reservasi.store') {
+            return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil ditambahkan!');
+        } else {
+            return redirect()->route('fe.reservasi.index')->with('success', 'Reservasi berhasil! Silakan cek status reservasi Anda.');
+        }
     }
 
+    // Backend: Edit reservasi
     public function edit($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -133,13 +167,14 @@ class ReservasiController extends Controller
         return view('be.reservasi.edit', compact('reservasi', 'pelanggan', 'paket', 'tanggalPenuh'));
     }
 
+    // Backend: Update reservasi
     public function update(Request $request, $id)
     {
         $reservasi = Reservasi::findOrFail($id);
 
         $request->validate([
             'id_pelanggan' => 'required',
-            'id_paket' => 'required',
+            'id_paket' => 'required|exists:paket_wisata,id',
             'tgl_mulai' => 'required|date',
             'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_peserta' => 'required|integer|min:1',
@@ -208,6 +243,7 @@ class ReservasiController extends Controller
         return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil diupdate!');
     }
 
+    // Backend: Hapus reservasi
     public function destroy($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -218,7 +254,7 @@ class ReservasiController extends Controller
         return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil dihapus!');
     }
 
-    // Simulasi pemesanan
+    // Backend: Simulasi pemesanan
     public function simulasi(Request $request)
     {
         $paket = PaketWisata::with(['reservasiAktif'])->get();
@@ -275,6 +311,7 @@ class ReservasiController extends Controller
         return view('be.reservasi.simulasi', compact('paket', 'tanggalPenuh', 'simulasi'));
     }
 
+    // Backend: Set status reservasi
     public function terima($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -299,6 +336,7 @@ class ReservasiController extends Controller
         return back()->with('success', 'Reservasi selesai.');
     }
 
+    // Backend: Bulk action
     public function bulk(Request $request, $action)
     {
         $ids = $request->selected;
@@ -319,5 +357,37 @@ class ReservasiController extends Controller
                 break;
         }
         return back()->with('success', 'Aksi massal berhasil dijalankan.');
+    }
+
+    // FE: Halaman booking
+    public function feIndex(Request $request)
+    {
+        $pakets = PaketWisata::all();
+        $diskon = DiskonPaket::where('aktif', 1)->get()->groupBy('paket_id');
+        $paketTerpilih = $request->paket; // dari query string
+
+        // Kirim tanggal penuh untuk kebutuhan kalender booking
+        $paketList = PaketWisata::with(['reservasiAktif'])->get();
+        $tanggalPenuh = [];
+        foreach ($paketList as $p) {
+            $tanggalPenuh[$p->id] = [];
+            foreach ($p->reservasiAktif as $r) {
+                $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
+                $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
+                for ($d = 0; $d <= $mulai->diffInDays($akhir); $d++) {
+                    $tanggalPenuh[$p->id][] = $mulai->copy()->addDays($d)->toDateString();
+                }
+            }
+        }
+
+        return view('fe.reservasi.index', compact('pakets', 'diskon', 'paketTerpilih', 'tanggalPenuh'));
+    }
+
+    // FE: Halaman detail reservasi
+    public function detail($id)
+    {
+        $paket = PaketWisata::with('kategori')->findOrFail($id);
+        $diskon = DiskonPaket::where('paket_id', $id)->where('aktif', 1)->first();
+        return view('fe.reservasi.detail', compact('paket', 'diskon'));
     }
 }

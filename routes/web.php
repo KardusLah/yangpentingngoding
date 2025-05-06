@@ -29,6 +29,9 @@ Route::get('/penginapan/{id}', [PenginapanController::class, 'show'])->name('fe.
 Route::get('/berita', [BeritaController::class, 'frontendIndex'])->name('fe.berita.index');
 Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
 Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+Route::get('/reservasi/detail/{id}', [ReservasiController::class, 'detail'])->name('fe.reservasi.detail');
+Route::get('/reservasi', [ReservasiController::class, 'feIndex'])->name('fe.reservasi.index');
+Route::post('/reservasi', [ReservasiController::class, 'store'])->name('reservasi.store');
 
 // ================= AUTH =================
 Route::middleware('guest')->group(function () {

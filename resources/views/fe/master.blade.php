@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="{{ asset('fe/assets/css/daterangepicker.css') }}">
   <link rel="stylesheet" href="{{ asset('fe/assets/css/aos.css') }}">
   <link rel="stylesheet" href="{{ asset('fe/assets/css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('be/assets/extensions/flatpickr/flatpickr.min.js') }}">
 
 	<title>Tour Free Bootstrap Template for Travel Agency by Untree.co</title>
 </head>

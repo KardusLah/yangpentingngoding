@@ -108,7 +108,8 @@
             <h5 class="card-title">{{ $paket->nama_paket }}</h5>
             <p class="card-text">{{ Str::limit($paket->deskripsi, 80) }}</p>
             <div class="mb-2"><strong>Harga:</strong> Rp{{ number_format($paket->harga_per_pack) }}</div>
-            <a href="{{ route('fe.paket.show', $paket->id) }}" class="btn btn-sm btn-primary">Detail</a>
+            <a href="{{ route('fe.reservasi.index', ['paket' => $paket->id]) }}" class="btn btn-sm btn-success">Pesan</a>
+            <a href="{{ route('fe.reservasi.detail', $paket->id) }}" class="btn btn-sm btn-primary">Detail</a>
           </div>
         </div>
       </div>
