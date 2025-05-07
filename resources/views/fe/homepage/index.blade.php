@@ -1,8 +1,8 @@
 @extends('fe.master')
 
-@section('navbar')
+{{-- @section('navbar')
     @include('fe.navbar')
-@endsection
+@endsection --}}
 
 @section('content')
 <div class="hero">

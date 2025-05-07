@@ -32,6 +32,8 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 Route::get('/reservasi/detail/{id}', [ReservasiController::class, 'detail'])->name('fe.reservasi.detail');
 Route::get('/reservasi', [ReservasiController::class, 'feIndex'])->name('fe.reservasi.index');
 Route::post('/reservasi', [ReservasiController::class, 'store'])->name('reservasi.store');
+// Route::get('/promo-wisata', [BeritaController::class, 'promo'])->name('fe.berita_promo.index');
+// Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
 
 // ================= AUTH =================
 Route::middleware('guest')->group(function () {

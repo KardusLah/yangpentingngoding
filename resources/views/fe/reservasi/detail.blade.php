@@ -1,9 +1,5 @@
 @extends('fe.master')
 
-@section('navbar')
-    @include('fe.navbar')
-@endsection
-
 @section('content')
 <div class="container py-5">
     <div class="row">

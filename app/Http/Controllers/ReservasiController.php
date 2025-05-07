@@ -50,24 +50,20 @@ class ReservasiController extends Controller
         if (!$user) {
             return redirect()->route('login')->withErrors(['login' => 'Silakan login untuk melakukan reservasi.']);
         }
-
+    
         // Cek level user yang boleh booking
         if (!in_array($user->level, ['pelanggan', 'admin', 'bendahara', 'owner', 'pemilik'])) {
             return back()->withErrors(['login' => 'Akun Anda tidak diizinkan melakukan reservasi.']);
         }
-
-        // Ambil id_pelanggan
-        $idPelanggan = null;
+    
+        // Hanya override id_pelanggan jika login sebagai pelanggan (FE)
         if ($user->level == 'pelanggan' && method_exists($user, 'pelanggan') && $user->pelanggan) {
-            $idPelanggan = $user->pelanggan->id;
-        } else {
-            // Untuk admin, bendahara, owner, gunakan id user sebagai id_pelanggan (atau sesuaikan kebutuhan)
-            $idPelanggan = $user->id;
+            $request->merge(['id_pelanggan' => $user->pelanggan->id]);
         }
-        $request->merge(['id_pelanggan' => $idPelanggan]);
-
+        // Untuk admin/bendahara/owner, id_pelanggan tetap dari form!
+    
         $request->validate([
-            'id_pelanggan' => 'required',
+            'id_pelanggan' => 'required|exists:pelanggan,id',
             'id_paket' => 'required|exists:paket_wisata,id',
             'tgl_mulai' => 'required|date',
             'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
@@ -75,22 +71,22 @@ class ReservasiController extends Controller
             'metode_pembayaran' => 'nullable|string',
             'file_bukti_tf' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
-
+    
         $paket = PaketWisata::findOrFail($request->id_paket);
         $tglMulai = Carbon::parse($request->tgl_mulai);
         $tglAkhir = Carbon::parse($request->tgl_akhir);
         $lama = $tglMulai->diffInDays($tglAkhir) + 1;
-
+    
         // Validasi lama reservasi tidak melebihi durasi paket
         if ($lama > $paket->durasi) {
             return back()->withErrors(['tgl_akhir' => 'Durasi maksimal reservasi untuk paket ini adalah '.$paket->durasi.' hari.'])->withInput();
         }
-
+    
         // Validasi tanggal penuh
         $reservasiAktif = Reservasi::where('id_paket', $paket->id)
             ->whereNotIn('status_reservasi_wisata', ['ditolak', 'selesai'])
             ->get();
-
+    
         for ($d = 0; $d < $lama; $d++) {
             $tglCek = $tglMulai->copy()->addDays($d)->toDateString();
             foreach ($reservasiAktif as $r) {
@@ -101,10 +97,10 @@ class ReservasiController extends Controller
                 }
             }
         }
-
+    
         // Hitung harga & diskon
         $total_bayar = $paket->harga_per_pack * $lama * $request->jumlah_peserta;
-
+    
         // Ambil diskon aktif & berlaku
         $diskon = DiskonPaket::where('paket_id', $paket->id)
             ->where('aktif', 1)
@@ -115,11 +111,11 @@ class ReservasiController extends Controller
                 $q->whereNull('tanggal_akhir')->orWhere('tanggal_akhir', '>=', $tglMulai->toDateString());
             })
             ->first();
-
+    
         $persen_diskon = $diskon ? $diskon->persen : 0;
         $nilai_diskon = $persen_diskon > 0 ? ($total_bayar * $persen_diskon / 100) : 0;
         $total_bayar_setelah_diskon = $total_bayar - $nilai_diskon;
-
+    
         $data = $request->all();
         $data['lama_reservasi'] = $lama;
         $data['harga'] = $paket->harga_per_pack;
@@ -128,13 +124,13 @@ class ReservasiController extends Controller
         $data['nilai_diskon'] = $nilai_diskon;
         $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
         $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'menunggu';
-
+    
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
         }
-
+    
         Reservasi::create($data);
-
+    
         // Redirect sesuai asal (FE/BE)
         if (\Request::route()->getName() === 'reservasi.store') {
             return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil ditambahkan!');
