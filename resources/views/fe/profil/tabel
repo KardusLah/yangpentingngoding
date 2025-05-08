@@ -1,0 +1,81 @@
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead class="bg-primary text-white">
+      <tr>
+        <th>Kode</th>
+        <th>Paket Wisata</th>
+        <th>Tanggal</th>
+        <th>Peserta</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      @forelse($reservasis as $reservasi)
+        <tr>
+          <td>#{{ $reservasi->id }}</td>
+          <td>
+            <a href="{{ route('paket.detail', $reservasi->paket->id) }}" 
+               class="text-primary">
+              {{ $reservasi->paket->nama_paket }}
+            </a>
+          </td>
+          <td>
+            {{ \Carbon\Carbon::parse($reservasi->tgl_mulai)->format('d M Y') }} - 
+            {{ \Carbon\Carbon::parse($reservasi->tgl_akhir)->format('d M Y') }}
+          </td>
+          <td>{{ $reservasi->jumlah_peserta }} orang</td>
+          <td>Rp {{ number_format($reservasi->total_bayar, 0, ',', '.') }}</td>
+          <td>
+            @if($reservasi->status_reservasi_wisata == 'menunggu')
+              <span class="badge bg-warning text-dark">
+                <i class="fas fa-clock mr-1"></i> Menunggu
+              </span>
+            @elseif($reservasi->status_reservasi_wisata == 'dibayar')
+              <span class="badge bg-success">
+                <i class="fas fa-check mr-1"></i> Dibayar
+              </span>
+            @elseif($reservasi->status_reservasi_wisata == 'ditolak')
+              <span class="badge bg-danger">
+                <i class="fas fa-times mr-1"></i> Ditolak
+              </span>
+            @else
+              <span class="badge bg-info">
+                <i class="fas fa-check-circle mr-1"></i> Selesai
+              </span>
+            @endif
+          </td>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="{{ route('reservasi.detail', $reservasi->id) }}" 
+                 class="btn btn-sm btn-outline-primary" title="Detail">
+                <i class="fas fa-eye"></i>
+              </a>
+              
+              @if($reservasi->status_reservasi_wisata == 'menunggu' && !$reservasi->file_bukti_tf)
+                <button class="btn btn-sm btn-outline-success upload-bukti" 
+                        data-id="{{ $reservasi->id }}" title="Upload Bukti">
+                  <i class="fas fa-upload"></i>
+                </button>
+              @endif
+            </div>
+          </td>
+        </tr>
+      @empty
+        <tr>
+          <td colspan="7" class="text-center py-4">
+            <i class="fas fa-calendar-times fa-2x text-muted mb-3"></i>
+            <p class="text-muted">Belum ada riwayat reservasi</p>
+          </td>
+        </tr>
+      @endforelse
+    </tbody>
+  </table>
+</div>
+
+@if($reservasis->hasPages())
+  <div class="d-flex justify-content-center mt-4">
+    {{ $reservasis->links() }}
+  </div>
+@endif

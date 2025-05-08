@@ -55,38 +55,19 @@
     <div class="row">
         @forelse($pakets as $paket)
         <div class="col-md-4 mb-4">
-            <div class="card paket-card h-100 shadow-sm">
-                <img src="{{ $paket->foto1 ? asset('storage/'.$paket->foto1) : asset('fe/assets/images/hero-slider-1.jpg') }}"
-                     class="paket-card-img" alt="{{ $paket->nama_paket }}">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="paket-title mb-1">{{ $paket->nama_paket }}</h5>
-                    <div class="paket-harga mb-2">
-                        <span><i class="icofont-price"></i> Rp{{ number_format($paket->harga_per_pack) }}/pack</span>
-                        @if($paket->durasi)
-                        <span class="ml-2"><i class="icofont-clock-time"></i> {{ $paket->durasi }} Hari</span>
-                        @endif
-                    </div>
-                    <p class="card-text mb-2">{{ Str::limit($paket->deskripsi, 80) }}</p>
-                    <div class="paket-fasilitas mb-3">
-                        @foreach(explode(',', $paket->fasilitas) as $fasilitas)
-                            <span class="badge mr-1 mb-1">
-                                <i class="icofont-check-circled text-success"></i> {{ trim($fasilitas) }}
-                            </span>
-                        @endforeach
-                    </div>
-                    <div class="mt-auto d-flex justify-content-between">
-                        <a href="{{ route('fe.paket.show', $paket->id) }}" class="btn btn-outline-primary btn-sm">
-                            <i class="icofont-eye"></i> Detail
-                        </a>
-                        <a href="{{ route('reservasi.create', ['paket' => $paket->id]) }}" class="btn btn-primary btn-sm">
-                            <i class="icofont-cart"></i> Pesan Sekarang
-                        </a>
-                    </div>
-                </div>
+          <div class="card h-100">
+            <img src="{{ $paket->foto1 ? asset('storage/'.$paket->foto1) : asset('fe/assets/images/hero-slider-1.jpg') }}" class="card-img-top" alt="{{ $paket->nama_paket }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ $paket->nama_paket }}</h5>
+              <p class="card-text">{{ Str::limit($paket->deskripsi, 80) }}</p>
+              <div class="mb-2"><strong>Harga:</strong> Rp{{ number_format($paket->harga_per_pack) }}</div>
+              <a href="{{ route('fe.reservasi.index', ['paket' => $paket->id]) }}" class="btn btn-sm btn-success">Pesan</a>
+              <a href="{{ route('fe.reservasi.detail', $paket->id) }}" class="btn btn-sm btn-primary">Detail</a>
             </div>
+          </div>
         </div>
         @empty
-        <div class="col-12 text-center text-muted">Tidak ada paket wisata ditemukan.</div>
+            <div class="col-12 text-center text-muted">Tidak ada paket wisata ditemukan.</div>
         @endforelse
     </div>
 </div>

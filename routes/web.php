@@ -32,6 +32,10 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 Route::get('/reservasi/detail/{id}', [ReservasiController::class, 'detail'])->name('fe.reservasi.detail');
 Route::get('/reservasi', [ReservasiController::class, 'feIndex'])->name('fe.reservasi.index');
 Route::post('/reservasi', [ReservasiController::class, 'store'])->name('reservasi.store');
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+Route::post('/reservasi/{id}/upload-bukti', [ProfileController::class, 'uploadBukti'])->name('reservasi.uploadBukti');
+Route::post('/', [ReservasiController::class, 'store'])->name('store');
 // Route::get('/promo-wisata', [BeritaController::class, 'promo'])->name('fe.berita_promo.index');
 // Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
 
@@ -126,7 +130,6 @@ Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(functio
     Route::prefix('be/reservasi')->name('reservasi.')->group(function () {
         Route::get('/', [ReservasiController::class, 'index'])->name('index');
         Route::get('/create', [ReservasiController::class, 'create'])->name('create');
-        Route::post('/', [ReservasiController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [ReservasiController::class, 'edit'])->name('edit');
         Route::put('/{id}', [ReservasiController::class, 'update'])->name('update');
         Route::delete('/{id}', [ReservasiController::class, 'destroy'])->name('destroy');

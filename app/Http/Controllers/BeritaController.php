@@ -84,6 +84,20 @@ class BeritaController extends Controller
     public function show($id)
     {
         $news = \App\Models\Berita::findOrFail($id);
-        return view('fe.berita.show', compact('news'));
+
+        // Berita terkait: kategori sama, bukan diri sendiri, max 4
+        $relatedNews = \App\Models\Berita::where('id_kategori_berita', $news->id_kategori_berita)
+            ->where('id', '!=', $news->id)
+            ->orderBy('tgl_post', 'desc')
+            ->limit(4)
+            ->get();
+
+        // Berita populer: ambil 5 berita terbaru
+        $popularNews = \App\Models\Berita::orderBy('tgl_post', 'desc')->limit(5)->get();
+
+        // Kategori beserta jumlah berita
+        $categories = \App\Models\KategoriBerita::withCount('berita')->get();
+
+        return view('fe.berita.show', compact('news', 'relatedNews', 'popularNews', 'categories'));
     }
 }

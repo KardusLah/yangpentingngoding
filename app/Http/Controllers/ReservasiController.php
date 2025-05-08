@@ -123,7 +123,7 @@ class ReservasiController extends Controller
         $data['diskon'] = $persen_diskon;
         $data['nilai_diskon'] = $nilai_diskon;
         $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
-        $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'menunggu';
+        $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'pesan';
     
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
