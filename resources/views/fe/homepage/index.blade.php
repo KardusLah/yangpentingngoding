@@ -126,7 +126,7 @@
         <h2 class="section-title">Obyek Wisata</h2>
       </div>
       <div class="col-lg-4 text-right">
-        <a href="{{ route('fe.paket.index') }}" class="btn btn-outline-third btn-sm">Lihat Semua Obyek</a>
+        <a href="{{ route('fe.wisata.index') }}" class="btn btn-outline-third btn-sm">Lihat Semua Obyek</a>
       </div>
     </div>
     <div class="row">
@@ -136,7 +136,7 @@
           <img src="{{ $destination->foto ? asset('storage/'.$destination->foto) : asset('fe/assets/images/hero-slider-2.jpg') }}" class="card-img-top" alt="{{ $destination->nama_wisata }}">
           <div class="card-body">
             <h5 class="card-title">{{ $destination->nama_wisata }}</h5>
-            <a href="{{ route('wisata.show', $destination->id) }}" class="btn btn-sm btn-primary">Detail</a>
+            <a href="{{ route('fe.wisata.show', $destination->id) }}" class="btn btn-sm btn-primary">Detail</a>
           </div>
         </div>
       </div>

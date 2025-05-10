@@ -36,6 +36,10 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 Route::post('/reservasi/{id}/upload-bukti', [ProfileController::class, 'uploadBukti'])->name('reservasi.uploadBukti');
 Route::post('/', [ReservasiController::class, 'store'])->name('store');
+Route::get('/wisata', [ObyekWisataController::class, 'frontendIndex'])->name('fe.wisata.index');
+Route::get('/wisata/{id}', [ObyekWisataController::class, 'show'])->name('fe.wisata.show');
+Route::get('/penginapan', [PenginapanController::class, 'frontendIndex'])->name('fe.penginapan.index');
+Route::get('/penginapan/{id}', [PenginapanController::class, 'show'])->name('fe.penginapan.show');
 // Route::get('/promo-wisata', [BeritaController::class, 'promo'])->name('fe.berita_promo.index');
 // Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
 

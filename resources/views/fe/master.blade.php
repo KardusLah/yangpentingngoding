@@ -49,8 +49,12 @@
             <ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu float-right align-items-center">
                 <li class="{{ request()->routeIs('home') ? 'active' : '' }}"><a href="{{ route('home') }}">Home</a></li>
                 <li class="{{ request()->routeIs('fe.paket.index') ? 'active' : '' }}"><a href="{{ route('fe.paket.index') }}">Paket Wisata</a></li>
-                <li><a href="">Obyek Wisata</a></li>
-                <li class="{{ request()->routeIs('fe.penginapan.index') ? 'active' : '' }}"><a href="{{ route('fe.penginapan.index') }}">Penginapan</a></li>
+                <li class="{{ request()->routeIs('fe.wisata.index') ? 'active' : '' }}">
+                    <a href="{{ route('fe.wisata.index') }}">Obyek Wisata</a>
+                </li>
+                <li class="{{ request()->routeIs('fe.penginapan.index') ? 'active' : '' }}">
+                    <a href="{{ route('fe.penginapan.index') }}">Penginapan</a>
+                </li>
                 <li class="{{ request()->routeIs('fe.berita.index') ? 'active' : '' }}"><a href="{{ route('fe.berita.index') }}">Berita</a></li>
                 
                 @guest

@@ -3,7 +3,7 @@
 
 
 @section('content')
-<div class="hero hero-inner">
+<div class="hero hero-inner" style="padding-top: 80px;">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6 mx-auto text-center">

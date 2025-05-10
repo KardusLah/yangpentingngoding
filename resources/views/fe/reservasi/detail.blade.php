@@ -3,7 +3,7 @@
 @section('content')
 <!-- Tambahkan padding top ekstra untuk menghindari navbar -->
 <div class="container" style="padding-top: 80px; padding-bottom: 40px;">
-    <div class="row">
+    <div class="row" style="margin-top: 80px;">
         <div class="col-md-6">
             <!-- Gallery utama dengan carousel -->
             <div id="paketGallery" class="carousel slide mb-4" data-bs-ride="carousel">
@@ -129,6 +129,10 @@
         z-index: 1030;
     }
 </style>
+@endsection
+
+@section('footer')
+    @include('fe.footer')
 @endsection
 
 @section('scripts')

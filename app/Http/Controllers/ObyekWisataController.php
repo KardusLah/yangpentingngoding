@@ -90,5 +90,33 @@ class ObyekWisataController extends Controller
         return redirect()->route('wisata.index')->with('success', 'Objek wisata berhasil dihapus');
     }
 
+    public function frontendIndex(Request $request)
+    {
+        $query = ObyekWisata::with('kategori');
+
+        // Filter pencarian jika ada
+        if ($request->q) {
+            $query->where('nama_wisata', 'like', '%'.$request->q.'%');
+        }
+        if ($request->kategori) {
+            $query->where('id_kategori_wisata', $request->kategori);
+        }
+        if ($request->lokasi) {
+            $query->where('deskripsi_wisata', 'like', '%'.$request->lokasi.'%');
+        }
+
+        $wisata = $query->get();
+        $kategori = \App\Models\KategoriWisata::all();
+
+        return view('fe.obyek.index', compact('wisata', 'kategori'));
+    }
+
+    // Untuk halaman detail objek wisata di frontend
+    public function show($id)
+    {
+        $item = ObyekWisata::with('kategori')->findOrFail($id);
+        return view('fe.obyek.show', compact('item'));
+    }
+
     
 }

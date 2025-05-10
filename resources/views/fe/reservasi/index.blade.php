@@ -26,7 +26,7 @@
                     <select name="id_paket" id="id_paket" class="form-control" required>
                         <option value="">Pilih Paket Wisata</option>
                         @foreach($pakets as $paket)
-                            <option value="{{ $paket->id }}"
+                        <option value="{{ $paket->id }}"
                                 data-harga="{{ $paket->harga_per_pack }}"
                                 data-durasi="{{ $paket->durasi }}"
                                 data-diskon='@json(($diskon[$paket->id] ?? collect())->map(function($d){
@@ -55,7 +55,7 @@
                     <input type="date" name="tgl_akhir" id="tgl_akhir" class="form-control" required>
                     <div id="pesan_tgl_akhir" class="text-danger small"></div>
                 </div>
-                <div class="mb-3">
+                {{-- <div class="mb-3">
                     <label>Metode Pembayaran</label>
                     <select name="metode_pembayaran" id="metode_pembayaran" class="form-control" required>
                         <option value="">Pilih Metode</option>
@@ -63,7 +63,7 @@
                         <option value="ewallet">E-Wallet</option>
                         <option value="kartu">Kartu Kredit</option>
                     </select>
-                </div>
+                </div> --}}
                 <div class="mb-3" id="bukti_transfer_group" style="display:none;">
                     <label>Bukti Transfer</label>
                     <input type="file" name="file_bukti_tf" class="form-control">
@@ -126,6 +126,10 @@
 </div>
 @endsection
 
+@section('footer')
+    @include('fe.footer')
+@endsection
+
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -159,18 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ================= FUNGSI BANTU =================
     
-    /**
-     * Format tanggal menjadi format pendek (contoh: 12 Jan)
-     */
     function formatTanggal(dateString) {
         if (!dateString) return '-';
         const options = { day: 'numeric', month: 'short' };
         return new Date(dateString).toLocaleDateString('id-ID', options);
     }
     
-    /**
-     * Format angka ke Rupiah
-     */
     function formatRupiah(angka) {
         if (isNaN(angka) || angka === null) return '-';
         return new Intl.NumberFormat('id-ID', {
@@ -181,17 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }).format(angka);
     }
     
-    /**
-     * Dapatkan tanggal yang penuh untuk paket yang dipilih
-     */
     function getTanggalPenuh() {
         const paketId = paketSelect.value;
         return tanggalPenuh[paketId] || [];
     }
     
-    /**
-     * Cari tanggal tersedia berikutnya jika tanggal yang dipilih penuh
-     */
     function getNextAvailableDate(startDate, penuhDates) {
         let date = new Date(startDate);
         for (let i = 0; i < 365; i++) {
@@ -202,19 +194,35 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
     
-    /**
-     * Dapatkan durasi maksimal berdasarkan paket yang dipilih
-     */
     function getMaxDurasi() {
         const opt = paketSelect.options[paketSelect.selectedIndex];
         return parseInt(opt?.getAttribute('data-durasi') || 1);
     }
+
+    // Update batas maksimal tanggal akhir sesuai durasi paket
+    function updateTanggalAkhirRange() {
+        const tglMulai = tglMulaiInput.value;
+        const maxDurasi = getMaxDurasi();
+        if (tglMulai) {
+            const min = tglMulai;
+            const maxDate = new Date(tglMulai);
+            maxDate.setDate(maxDate.getDate() + maxDurasi - 1);
+            const max = maxDate.toISOString().slice(0,10);
+            tglAkhirInput.min = min;
+            tglAkhirInput.max = max;
+            // Jika tanggal akhir di luar rentang, reset
+            if (!tglAkhirInput.value || tglAkhirInput.value < min || tglAkhirInput.value > max) {
+                tglAkhirInput.value = min;
+            }
+        } else {
+            tglAkhirInput.value = '';
+            tglAkhirInput.min = today;
+            tglAkhirInput.max = '';
+        }
+    }
     
     // ================= FUNGSI VALIDASI =================
     
-    /**
-     * Validasi apakah tanggal yang dipilih penuh
-     */
     function validateTanggalPenuh(inputId, pesanId) {
         const tgl = document.getElementById(inputId).value;
         const penuhDates = getTanggalPenuh();
@@ -230,9 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    /**
-     * Validasi tanggal akhir tidak boleh sebelum tanggal mulai
-     */
     function validateTanggalRange() {
         const mulai = tglMulaiInput.value;
         const akhir = tglAkhirInput.value;
@@ -247,9 +252,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
     
-    /**
-     * Validasi jumlah peserta minimal
-     */
     function validateJumlahPeserta() {
         const jumlah = parseInt(jumlahPeserta.value) || 0;
         const opt = paketSelect.options[paketSelect.selectedIndex];
@@ -264,9 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ================= FUNGSI UPDATE RINGKASAN =================
     
-    /**
-     * Update semua informasi di ringkasan pemesanan
-     */
     function updateRingkasan() {
         const opt = paketSelect.options[paketSelect.selectedIndex];
         const namaPaket = opt ? opt.text.split(' (Diskon')[0] : '-';
@@ -337,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
     paketSelect.addEventListener('change', function() {
         validateTanggalPenuh('tgl_mulai', 'pesan_tgl_mulai');
         validateTanggalPenuh('tgl_akhir', 'pesan_tgl_akhir');
+        updateTanggalAkhirRange();
         updateRingkasan();
         
         // Set jumlah peserta minimal
@@ -348,12 +348,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validasi tanggal mulai
     tglMulaiInput.addEventListener('change', function() {
         if (this.value) {
-            tglAkhirInput.min = this.value;
-            if (!tglAkhirInput.value || new Date(tglAkhirInput.value) < new Date(this.value)) {
-                tglAkhirInput.value = this.value;
-            }
+            updateTanggalAkhirRange();
         }
-        
         validateTanggalPenuh('tgl_mulai', 'pesan_tgl_mulai');
         validateTanggalRange();
         updateRingkasan();
@@ -403,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Inisialisasi awal
+    updateTanggalAkhirRange();
     updateRingkasan();
 });
 </script>

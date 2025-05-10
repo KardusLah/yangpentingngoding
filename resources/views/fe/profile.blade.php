@@ -2,7 +2,7 @@
 @extends('fe.master')
 
 @section('content')
-<div class="untree_co-section bg-light" style="margin-top: 90px;">
+<div class="untree_co-section bg-light" style="margin-top: 80px;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">

@@ -42,3 +42,7 @@
     </div>
 </div>
 @endsection
+
+@section('footer')
+    @include('fe.footer')
+@endsection

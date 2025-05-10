@@ -86,7 +86,6 @@ class PenginapanController extends Controller
         return redirect()->route('penginapan.index')->with('success', 'Penginapan berhasil dihapus');
     }
 
-    // Untuk halaman daftar penginapan di frontend
     public function frontendIndex()
     {
         $penginapan = \App\Models\Penginapan::all();
