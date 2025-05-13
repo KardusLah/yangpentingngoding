@@ -49,11 +49,11 @@
                     <span class="badge bg-info">{{ ucfirst($u->level) }}</span>
                 </td>
                 <td>
-                    @if($u->aktif)
-                        <span class="badge bg-success">Aktif</span>
-                    @else
-                        <span class="badge bg-danger">Nonaktif</span>
-                    @endif
+                    <input type="checkbox"
+                        class="form-check-input status-toggle"
+                        data-id="{{ $u->id }}"
+                        {{ $u->aktif ? 'checked' : '' }}>
+                    <span class="ms-1">{{ $u->aktif ? 'Aktif' : 'Nonaktif' }}</span>
                 </td>
                 <td>
                     {{ $u->karyawan->jabatan ?? '-' }}
@@ -98,5 +98,35 @@ function showImgPreview(src) {
     var myModal = new bootstrap.Modal(document.getElementById('imgPreviewModal'));
     myModal.show();
 }
+</script>
+
+<script>
+document.querySelectorAll('.status-toggle').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        var userId = this.getAttribute('data-id');
+        var aktif = this.checked ? 1 : 0;
+        fetch("{{ url('be/user/status') }}/" + userId, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ aktif: aktif })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                this.nextElementSibling.textContent = aktif ? 'Aktif' : 'Nonaktif';
+            } else {
+                alert('Gagal update status!');
+                this.checked = !this.checked;
+            }
+        })
+        .catch(() => {
+            alert('Gagal update status!');
+            this.checked = !this.checked;
+        });
+    });
+});
 </script>
 @endsection

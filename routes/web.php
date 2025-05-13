@@ -103,6 +103,7 @@ Route::middleware(['auth', CheckUserLevel::class . ':admin'])->group(function ()
         Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{id}', [UserController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+        Route::post('/status/{id}', [UserController::class, 'updateStatus']);
     });
 
     // Kategori Berita

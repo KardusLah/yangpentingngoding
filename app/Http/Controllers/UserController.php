@@ -181,4 +181,11 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus');
     }
+    public function updateStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->aktif = $request->aktif ? 1 : 0;
+        $user->save();
+        return response()->json(['success' => true]);
+    }
 }
