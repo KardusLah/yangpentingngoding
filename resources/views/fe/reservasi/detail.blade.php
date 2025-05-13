@@ -135,7 +135,7 @@
     @include('fe.footer')
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Jika ada paketTerpilih, trigger event agar ringkasan dan tanggal update otomatis
@@ -153,4 +153,4 @@
         }
     });
 </script>
-@endsection
+@endpush

@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="{{ asset('fe/assets/css/daterangepicker.css') }}">
   <link rel="stylesheet" href="{{ asset('fe/assets/css/aos.css') }}">
   <link rel="stylesheet" href="{{ asset('fe/assets/css/style.css') }}">
-  <link rel="stylesheet" href="{{ asset('be/assets/extensions/flatpickr/flatpickr.min.js') }}">
+  <link rel="stylesheet" href="{{ asset('be/assets/extensions/flatpickr/flatpickr.min.css') }}">
 
 	<title>Tour Free Bootstrap Template for Travel Agency by Untree.co</title>
 </head>
@@ -127,6 +127,7 @@
     <script src="{{ asset('fe/assets/js/aos.js') }}"></script>
     <script src="{{ asset('fe/assets/js/typed.js') }}"></script>
     <script src="{{ asset('fe/assets/js/custom.js') }}"></script>
+    <script src="{{ asset('be/assets/extensions/flatpickr/flatpickr.min.js') }}"></script>
     
     <script>
         // Navbar scroll effect

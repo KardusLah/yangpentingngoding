@@ -40,6 +40,7 @@ Route::get('/wisata', [ObyekWisataController::class, 'frontendIndex'])->name('fe
 Route::get('/wisata/{id}', [ObyekWisataController::class, 'show'])->name('fe.wisata.show');
 Route::get('/penginapan', [PenginapanController::class, 'frontendIndex'])->name('fe.penginapan.index');
 Route::get('/penginapan/{id}', [PenginapanController::class, 'show'])->name('fe.penginapan.show');
+Route::post('/midtrans/callback', [ReservasiController::class, 'midtransCallback']);
 // Route::get('/promo-wisata', [BeritaController::class, 'promo'])->name('fe.berita_promo.index');
 // Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
 
@@ -180,3 +181,7 @@ Route::middleware(['auth', CheckPelanggan::class])->group(function () {
     Route::get('/profilepelanggan', [PelangganController::class, 'profilePelanggan'])->name('profilepelanggan');
     // ...route pelanggan lain...
 });
+
+// Route export PDF/Excel untuk Owner & Bendahara (akses global)
+Route::get('/laporan/export-pdf', [LaporanKeuanganController::class, 'exportPdf'])->name('laporan.exportPdf')->middleware(['auth', CheckUserLevel::class . ':pemilik,bendahara']);
+Route::get('/laporan/export-excel', [LaporanKeuanganController::class, 'exportExcel'])->name('laporan.exportExcel')->middleware(['auth', CheckUserLevel::class . ':pemilik,bendahara']);

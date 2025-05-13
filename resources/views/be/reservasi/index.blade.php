@@ -30,6 +30,8 @@
                     <th>Total Harga</th>
                     <th>Bukti Transfer</th>
                     <th>Status</th>
+                    <th>Order ID</th>         {{-- Tambah ini --}}
+                    <th>Payment URL</th>      {{-- Tambah ini --}}
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -72,6 +74,14 @@
                             <span class="badge bg-danger">Ditolak</span>
                         @endif
                     </td>
+                    <td>{{ $r->midtrans_order_id ?? '-' }}</td> {{-- Order ID --}}
+                    <td>
+                        @if($r->payment_url)
+                            <a href="{{ $r->payment_url }}" target="_blank">Lihat</a>
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>
                         <a href="{{ route('reservasi.edit', $r->id) }}" class="btn btn-sm btn-warning">Edit</a>
                         <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailModal{{ $r->id }}">Detail</button>
@@ -101,6 +111,17 @@
                 <tr><th>Lama Reservasi</th><td>{{ $r->lama_reservasi }} hari</td></tr>
                 <tr><th>Diskon</th><td>{{ $r->diskon ? $r->diskon.'% (Rp'.number_format($r->nilai_diskon,0,',','.').')' : '-' }}</td></tr>
                 <tr><th>Total Bayar</th><td>Rp{{ number_format($r->total_bayar,0,',','.') }}</td></tr>
+                <tr><th>Order ID</th><td>{{ $r->midtrans_order_id ?? '-' }}</td></tr>
+                <tr>
+                    <th>Payment URL</th>
+                    <td>
+                        @if($r->payment_url)
+                            <a href="{{ $r->payment_url }}" target="_blank">Lihat</a>
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
+                </tr>
                 <tr>
                     <th>Bukti Transfer</th>
                     <td>

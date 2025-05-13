@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Midtrans\Snap;
+use Midtrans\Config;
 
 class ReservasiController extends Controller
 {
@@ -26,11 +28,11 @@ class ReservasiController extends Controller
         $pelanggan = Pelanggan::all();
         $paket = PaketWisata::with(['reservasiAktif'])->get();
 
-        // Buat array tanggal penuh per paket
+        // Buat array tanggal penuh per paket (hanya status 'dibayar')
         $tanggalPenuh = [];
         foreach ($paket as $p) {
             $tanggalPenuh[$p->id] = [];
-            foreach ($p->reservasiAktif as $r) {
+            foreach ($p->reservasiAktif->where('status_reservasi_wisata', 'dibayar') as $r) {
                 $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
                 $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
                 for ($d = 0; $d <= $mulai->diffInDays($akhir); $d++) {
@@ -50,18 +52,18 @@ class ReservasiController extends Controller
         if (!$user) {
             return redirect()->route('login')->withErrors(['login' => 'Silakan login untuk melakukan reservasi.']);
         }
-    
+
         // Cek level user yang boleh booking
         if (!in_array($user->level, ['pelanggan', 'admin', 'bendahara', 'owner', 'pemilik'])) {
             return back()->withErrors(['login' => 'Akun Anda tidak diizinkan melakukan reservasi.']);
         }
-    
+
         // Hanya override id_pelanggan jika login sebagai pelanggan (FE)
         if ($user->level == 'pelanggan' && method_exists($user, 'pelanggan') && $user->pelanggan) {
             $request->merge(['id_pelanggan' => $user->pelanggan->id]);
         }
         // Untuk admin/bendahara/owner, id_pelanggan tetap dari form!
-    
+
         $request->validate([
             'id_pelanggan' => 'required|exists:pelanggan,id',
             'id_paket' => 'required|exists:paket_wisata,id',
@@ -71,22 +73,22 @@ class ReservasiController extends Controller
             'metode_pembayaran' => 'nullable|string',
             'file_bukti_tf' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
-    
+
         $paket = PaketWisata::findOrFail($request->id_paket);
         $tglMulai = Carbon::parse($request->tgl_mulai);
         $tglAkhir = Carbon::parse($request->tgl_akhir);
         $lama = $tglMulai->diffInDays($tglAkhir) + 1;
-    
+
         // Validasi lama reservasi tidak melebihi durasi paket
         if ($lama > $paket->durasi) {
             return back()->withErrors(['tgl_akhir' => 'Durasi maksimal reservasi untuk paket ini adalah '.$paket->durasi.' hari.'])->withInput();
         }
-    
-        // Validasi tanggal penuh
+
+        // Validasi tanggal penuh (hanya status 'dibayar' yang dianggap penuh)
         $reservasiAktif = Reservasi::where('id_paket', $paket->id)
-            ->whereNotIn('status_reservasi_wisata', ['ditolak', 'selesai'])
+            ->where('status_reservasi_wisata', 'dibayar')
             ->get();
-    
+
         for ($d = 0; $d < $lama; $d++) {
             $tglCek = $tglMulai->copy()->addDays($d)->toDateString();
             foreach ($reservasiAktif as $r) {
@@ -97,10 +99,10 @@ class ReservasiController extends Controller
                 }
             }
         }
-    
+
         // Hitung harga & diskon
         $total_bayar = $paket->harga_per_pack * $lama * $request->jumlah_peserta;
-    
+
         // Ambil diskon aktif & berlaku
         $diskon = DiskonPaket::where('paket_id', $paket->id)
             ->where('aktif', 1)
@@ -111,11 +113,11 @@ class ReservasiController extends Controller
                 $q->whereNull('tanggal_akhir')->orWhere('tanggal_akhir', '>=', $tglMulai->toDateString());
             })
             ->first();
-    
+
         $persen_diskon = $diskon ? $diskon->persen : 0;
         $nilai_diskon = $persen_diskon > 0 ? ($total_bayar * $persen_diskon / 100) : 0;
         $total_bayar_setelah_diskon = $total_bayar - $nilai_diskon;
-    
+
         $data = $request->all();
         $data['lama_reservasi'] = $lama;
         $data['harga'] = $paket->harga_per_pack;
@@ -124,19 +126,57 @@ class ReservasiController extends Controller
         $data['nilai_diskon'] = $nilai_diskon;
         $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
         $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'pesan';
-    
+
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
         }
-    
-        Reservasi::create($data);
-    
-        // Redirect sesuai asal (FE/BE)
-        if (\Request::route()->getName() === 'reservasi.store') {
-            return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil ditambahkan!');
-        } else {
-            return redirect()->route('fe.reservasi.index')->with('success', 'Reservasi berhasil! Silakan cek status reservasi Anda.');
-        }
+
+        // Konfigurasi Midtrans
+        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        // Buat order_id unik
+        $orderId = 'RESV-' . time() . '-' . rand(100,999);
+
+        // Data transaksi Midtrans
+        $params = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => (int) $data['total_bayar'],
+            ],
+            'customer_details' => [
+                'first_name' => $user->name ?? 'Pelanggan',
+                'email' => $user->email ?? 'user@example.com',
+            ],
+            'item_details' => [
+                [
+                    'id' => $paket->id,
+                    'price' => (int) $data['harga'],
+                    'quantity' => $data['jumlah_peserta'] * $data['lama_reservasi'],
+                    'name' => $paket->nama_paket,
+                ]
+            ],
+            'callbacks' => [
+                'finish' => route('profile'), // Ganti dengan route profil user Anda
+                // 'unfinish' => route('profil'), // Optional
+                // 'error' => route('profil'),    // Optional
+            ]
+        ];
+
+        // Dapatkan Snap Token & Payment URL
+        $snapUrl = Snap::createTransaction($params)->redirect_url;
+
+        // Simpan order_id dan payment_url ke database
+        $data['midtrans_order_id'] = $orderId;
+        $data['payment_url'] = $snapUrl;
+
+        // Simpan reservasi
+        $reservasi = Reservasi::create($data);
+
+        // Redirect langsung ke halaman pembayaran Midtrans
+        return redirect($snapUrl);
     }
 
     // Backend: Edit reservasi
@@ -146,11 +186,11 @@ class ReservasiController extends Controller
         $pelanggan = Pelanggan::all();
         $paket = PaketWisata::with(['reservasiAktif'])->get();
 
-        // Buat array tanggal penuh per paket (kecuali reservasi ini sendiri)
+        // Buat array tanggal penuh per paket (hanya status 'dibayar', kecuali reservasi ini sendiri)
         $tanggalPenuh = [];
         foreach ($paket as $p) {
             $tanggalPenuh[$p->id] = [];
-            foreach ($p->reservasiAktif as $r) {
+            foreach ($p->reservasiAktif->where('status_reservasi_wisata', 'dibayar') as $r) {
                 if ($r->id == $reservasi->id) continue;
                 $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
                 $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
@@ -188,7 +228,7 @@ class ReservasiController extends Controller
         // Validasi tanggal penuh (abaikan reservasi ini sendiri)
         $reservasiAktif = Reservasi::where('id_paket', $paket->id)
             ->where('id', '!=', $reservasi->id)
-            ->whereNotIn('status_reservasi_wisata', ['ditolak', 'selesai'])
+            ->where('status_reservasi_wisata', 'dibayar')
             ->get();
 
         for ($d = 0; $d < $lama; $d++) {
@@ -256,10 +296,9 @@ class ReservasiController extends Controller
         $paket = PaketWisata::with(['reservasiAktif'])->get();
 
         // Tanggal penuh per paket
-        $tanggalPenuh = [];
         foreach ($paket as $p) {
             $tanggalPenuh[$p->id] = [];
-            foreach ($p->reservasiAktif as $r) {
+            foreach ($p->reservasiAktif->where('status_reservasi_wisata', 'dibayar') as $r) {
                 $mulai = Carbon::parse($r->tgl_mulai ?? $r->tgl_reservasi_wisata);
                 $akhir = Carbon::parse($r->tgl_akhir ?? $r->tgl_reservasi_wisata);
                 for ($d = 0; $d <= $mulai->diffInDays($akhir); $d++) {
@@ -386,4 +425,24 @@ class ReservasiController extends Controller
         $diskon = DiskonPaket::where('paket_id', $id)->where('aktif', 1)->first();
         return view('fe.reservasi.detail', compact('paket', 'diskon'));
     }
+
+    // Midtrans callback
+    public function midtransCallback(Request $request)
+    {
+        $notif = new \Midtrans\Notification();
+        $orderId = $notif->order_id;
+        $transactionStatus = $notif->transaction_status;
+
+        $reservasi = Reservasi::where('midtrans_order_id', $orderId)->first();
+        if ($reservasi) {
+            if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
+                $reservasi->status_reservasi_wisata = 'dibayar';
+            } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'expire') {
+                $reservasi->status_reservasi_wisata = 'ditolak';
+            }
+            $reservasi->save();
+        }
+        return response()->json(['status' => 'ok']);
+    }
+    
 }

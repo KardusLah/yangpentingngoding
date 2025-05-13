@@ -22,6 +22,8 @@ class Reservasi extends Model
         'tgl_mulai',
         'tgl_akhir',
         'lama_reservasi',
+        'midtrans_order_id',   // <--- tambahkan ini
+        'payment_url',    
     ];
 
     public function pelanggan()

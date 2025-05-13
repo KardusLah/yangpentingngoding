@@ -1,4 +1,4 @@
-{{-- filepath: resources/views/be/laporan/pdf.blade.php --}}
+{{-- filepath: c:\xampp\htdocs\WISATA\reservasi-online\resources\views\be\laporan\pdf.blade.php --}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -53,6 +53,55 @@
                 <tr>
                     <td>{{ $row->bulan }}</td>
                     <td>Rp {{ number_format($row->total,0,',','.') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <div class="section">
+        <strong>Daftar Reservasi:</strong>
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Pelanggan</th>
+                    <th>Paket Wisata</th>
+                    <th>Tgl Reservasi</th>
+                    <th>Harga</th>
+                    <th>Jumlah Peserta</th>
+                    <th>Diskon</th>
+                    <th>Total Bayar</th>
+                    <th>Status</th>
+                    <th>Dibuat</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($reservasi as $i => $r)
+                <tr>
+                    <td>{{ $i+1 }}</td>
+                    <td>{{ $r->pelanggan->nama_lengkap ?? '-' }}</td>
+                    <td>{{ $r->paket->nama_paket ?? '-' }}</td>
+                    <td>{{ $r->tgl_reservasi_wisata }}</td>
+                    <td>Rp{{ number_format($r->harga,0,',','.') }}</td>
+                    <td>{{ $r->jumlah_peserta }}</td>
+                    <td>
+                        @if($r->diskon)
+                            {{ $r->diskon }}% (Rp{{ number_format($r->nilai_diskon,0,',','.') }})
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>Rp{{ number_format($r->total_bayar,0,',','.') }}</td>
+                    <td>
+                        @if($r->status_reservasi_wisata == 'pesan')
+                            Pesan
+                        @elseif($r->status_reservasi_wisata == 'dibayar')
+                            Dibayar
+                        @elseif($r->status_reservasi_wisata == 'selesai')
+                            Selesai
+                        @endif
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($r->created_at)->format('d-m-Y') }}</td>
                 </tr>
                 @endforeach
             </tbody>
