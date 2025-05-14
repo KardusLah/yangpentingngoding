@@ -9,6 +9,7 @@ use App\Models\DiskonPaket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Midtrans\Snap;
 use Midtrans\Config;
@@ -429,6 +430,7 @@ class ReservasiController extends Controller
     // Midtrans callback
     public function midtransCallback(Request $request)
     {
+        Log::info('Midtrans callback masuk', $request->all());
         $notif = new \Midtrans\Notification();
         $orderId = $notif->order_id;
         $transactionStatus = $notif->transaction_status;
