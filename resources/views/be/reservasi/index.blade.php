@@ -30,8 +30,8 @@
                     <th>Total Harga</th>
                     <th>Bukti Transfer</th>
                     <th>Status</th>
-                    <th>Order ID</th>         {{-- Tambah ini --}}
-                    <th>Payment URL</th>      {{-- Tambah ini --}}
+                    {{-- <th>Order ID</th>         
+                    <th>Payment URL</th>       --}}
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -58,10 +58,14 @@
                     <td>
                         @if($r->file_bukti_tf)
                             <img src="{{ asset('storage/'.$r->file_bukti_tf) }}" width="40" style="cursor:pointer"
-                                 onclick="showImgPreview('{{ asset('storage/'.$r->file_bukti_tf) }}')">
+                                onclick="showImgPreview('{{ asset('storage/'.$r->file_bukti_tf) }}')">
                         @else
                             -
                         @endif
+                    </td>
+                    <td>
+                        {{-- Tampilkan no rekening, contoh: --}}
+                        {{ $r->no_rekening ?? ($r->bank->no_rekening ?? '-') }}
                     </td>
                     <td class="status-cell" data-status="{{ $r->status_reservasi_wisata }}">
                         @if($r->status_reservasi_wisata == 'pesan')
@@ -74,14 +78,6 @@
                             <span class="badge bg-danger">Ditolak</span>
                         @endif
                     </td>
-                    <td>{{ $r->midtrans_order_id ?? '-' }}</td> {{-- Order ID --}}
-                    <td>
-                        @if($r->payment_url)
-                            <a href="{{ $r->payment_url }}" target="_blank">Lihat</a>
-                        @else
-                            -
-                        @endif
-                    </td>
                     <td>
                         <a href="{{ route('reservasi.edit', $r->id) }}" class="btn btn-sm btn-warning">Edit</a>
                         <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailModal{{ $r->id }}">Detail</button>
@@ -90,7 +86,8 @@
                 @endforeach
             </tbody>
         </table>
-    </form>
+        {{-- ...existing code... --}}
+
     {{-- Modal Detail --}}
     @foreach($reservasi as $r)
     <div class="modal fade" id="detailModal{{ $r->id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $r->id }}" aria-hidden="true">
@@ -111,23 +108,16 @@
                 <tr><th>Lama Reservasi</th><td>{{ $r->lama_reservasi }} hari</td></tr>
                 <tr><th>Diskon</th><td>{{ $r->diskon ? $r->diskon.'% (Rp'.number_format($r->nilai_diskon,0,',','.').')' : '-' }}</td></tr>
                 <tr><th>Total Bayar</th><td>Rp{{ number_format($r->total_bayar,0,',','.') }}</td></tr>
-                <tr><th>Order ID</th><td>{{ $r->midtrans_order_id ?? '-' }}</td></tr>
                 <tr>
-                    <th>Payment URL</th>
-                    <td>
-                        @if($r->payment_url)
-                            <a href="{{ $r->payment_url }}" target="_blank">Lihat</a>
-                        @else
-                            <span class="text-muted">-</span>
-                        @endif
-                    </td>
+                    <th>No. Rekening</th>
+                    <td>{{ $r->no_rekening ?? ($r->bank->no_rekening ?? '-') }}</td>
                 </tr>
                 <tr>
                     <th>Bukti Transfer</th>
                     <td>
                         @if($r->file_bukti_tf)
                             <img src="{{ asset('storage/'.$r->file_bukti_tf) }}" alt="Bukti Transfer" style="max-width:200px;max-height:200px;cursor:pointer"
-                                 onclick="showImgPreview('{{ asset('storage/'.$r->file_bukti_tf) }}')">
+                                onclick="showImgPreview('{{ asset('storage/'.$r->file_bukti_tf) }}')">
                         @else
                             <span class="text-muted">-</span>
                         @endif

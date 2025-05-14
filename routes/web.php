@@ -40,7 +40,7 @@ Route::get('/wisata', [ObyekWisataController::class, 'frontendIndex'])->name('fe
 Route::get('/wisata/{id}', [ObyekWisataController::class, 'show'])->name('fe.wisata.show');
 Route::get('/penginapan', [PenginapanController::class, 'frontendIndex'])->name('fe.penginapan.index');
 Route::get('/penginapan/{id}', [PenginapanController::class, 'show'])->name('fe.penginapan.show');
-Route::post('/midtrans/callback', [ReservasiController::class, 'midtransCallback']);
+// Route::post('/midtrans/callback', [ReservasiController::class, 'midtransCallback']);
 // Route::get('/promo-wisata', [BeritaController::class, 'promo'])->name('fe.berita_promo.index');
 // Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('fe.berita.show');
 
@@ -165,7 +165,8 @@ Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(functio
     Route::middleware(['auth', CheckUserLevel::class . ':bendahara'])->group(function () {
         Route::get('be/diskon', [DiskonPaketController::class, 'index'])->name('diskon.index');
         Route::post('be/diskon/update', [DiskonPaketController::class, 'update'])->name('diskon.update');
-});
+    });
+    Route::resource('be/bank', \App\Http\Controllers\BankController::class)->names('bank');
 });
 
 // ================= OWNER =================

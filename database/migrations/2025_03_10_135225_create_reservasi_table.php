@@ -23,8 +23,8 @@ return new class extends Migration
             $table->bigInteger('total_bayar');
             $table->text('file_bukti_tf')->nullable();
             $table->enum('status_reservasi_wisata', ['pesan', 'dibayar', 'ditolak', 'selesai']);
-            $table->string('midtrans_order_id')->nullable();
-            $table->string('payment_url')->nullable();
+            // $table->string('midtrans_order_id')->nullable();
+            // $table->string('payment_url')->nullable();
             $table->timestamps();
         });
     }

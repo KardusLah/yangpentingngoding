@@ -1,5 +1,5 @@
 {{-- filepath: resources/views/fe/reservasi/sukses.blade.php --}}
-@extends('fe.master')
+{{-- @extends('fe.master')
 
 @section('content')
 <div class="container py-5 text-center">
@@ -32,4 +32,4 @@ document.getElementById('pay-button').onclick = function(){
     });
 };
 </script>
-@endpush
+@endpush --}}

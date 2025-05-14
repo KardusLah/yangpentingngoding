@@ -131,6 +131,12 @@
                             <span>Diskon Paket Wisata</span>
                         </a>
                     </li>
+                    <li class="sidebar-item {{ request()->is('be/bank*') ? 'active' : '' }}">
+                        <a href="{{ route('bank.index') }}" class='sidebar-link'>
+                            <i class="bi bi-percent"></i>
+                            <span>Bank Paket Wisata</span>
+                        </a>
+                    </li>
                 @elseif(Auth::user()->level == 'pemilik')
                     <li class="sidebar-item {{ request()->is('pemilik') ? 'active' : '' }}">
                         <a href="{{ route('owner.index') }}" class='sidebar-link'>

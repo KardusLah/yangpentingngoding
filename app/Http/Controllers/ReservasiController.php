@@ -6,13 +6,14 @@ use App\Models\Reservasi;
 use App\Models\Pelanggan;
 use App\Models\PaketWisata;
 use App\Models\DiskonPaket;
+use App\Models\Bank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use Midtrans\Snap;
-use Midtrans\Config;
+// use Midtrans\Snap;
+// use Midtrans\Config;
 
 class ReservasiController extends Controller
 {
@@ -28,6 +29,7 @@ class ReservasiController extends Controller
     {
         $pelanggan = Pelanggan::all();
         $paket = PaketWisata::with(['reservasiAktif'])->get();
+        $bankList = Bank::all(); // <--- ambil data bank
 
         // Buat array tanggal penuh per paket (hanya status 'dibayar')
         $tanggalPenuh = [];
@@ -42,7 +44,7 @@ class ReservasiController extends Controller
             }
         }
 
-        return view('be.reservasi.create', compact('pelanggan', 'paket', 'tanggalPenuh'));
+        return view('be.reservasi.create', compact('pelanggan', 'paket', 'tanggalPenuh', 'bankList'));
     }
 
     // Store reservasi (FE & BE)
@@ -72,7 +74,9 @@ class ReservasiController extends Controller
             'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_peserta' => 'required|integer|min:1',
             'metode_pembayaran' => 'nullable|string',
-            'file_bukti_tf' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_bukti_tf' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', // wajib
+            'bank_id' => 'required|exists:bank,id',
+            'no_rekening' => 'required|string|max:100',
         ]);
 
         $paket = PaketWisata::findOrFail($request->id_paket);
@@ -127,57 +131,17 @@ class ReservasiController extends Controller
         $data['nilai_diskon'] = $nilai_diskon;
         $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
         $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'pesan';
+        $data['bank_id'] = $request->bank_id;
+        $data['no_rekening'] = $request->no_rekening;
 
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
         }
 
-        // Konfigurasi Midtrans
-        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
-        Config::$isSanitized = true;
-        Config::$is3ds = true;
+        Reservasi::create($data);
 
-        // Buat order_id unik
-        $orderId = 'RESV-' . time() . '-' . rand(100,999);
-
-        // Data transaksi Midtrans
-        $params = [
-            'transaction_details' => [
-                'order_id' => $orderId,
-                'gross_amount' => (int) $data['total_bayar'],
-            ],
-            'customer_details' => [
-                'first_name' => $user->name ?? 'Pelanggan',
-                'email' => $user->email ?? 'user@example.com',
-            ],
-            'item_details' => [
-                [
-                    'id' => $paket->id,
-                    'price' => (int) $data['harga'],
-                    'quantity' => $data['jumlah_peserta'] * $data['lama_reservasi'],
-                    'name' => $paket->nama_paket,
-                ]
-            ],
-            'callbacks' => [
-                'finish' => route('profile'), // Ganti dengan route profil user Anda
-                // 'unfinish' => route('profil'), // Optional
-                // 'error' => route('profil'),    // Optional
-            ]
-        ];
-
-        // Dapatkan Snap Token & Payment URL
-        $snapUrl = Snap::createTransaction($params)->redirect_url;
-
-        // Simpan order_id dan payment_url ke database
-        $data['midtrans_order_id'] = $orderId;
-        $data['payment_url'] = $snapUrl;
-
-        // Simpan reservasi
-        $reservasi = Reservasi::create($data);
-
-        // Redirect langsung ke halaman pembayaran Midtrans
-        return redirect($snapUrl);
+        // Redirect ke halaman profil FE setelah booking
+        return redirect()->route('profile')->with('success', 'Reservasi berhasil dibuat! Silakan cek status reservasi Anda.');
     }
 
     // Backend: Edit reservasi
@@ -186,6 +150,7 @@ class ReservasiController extends Controller
         $reservasi = Reservasi::findOrFail($id);
         $pelanggan = Pelanggan::all();
         $paket = PaketWisata::with(['reservasiAktif'])->get();
+        $bankList = Bank::all(); // <--- ambil data bank
 
         // Buat array tanggal penuh per paket (hanya status 'dibayar', kecuali reservasi ini sendiri)
         $tanggalPenuh = [];
@@ -201,7 +166,7 @@ class ReservasiController extends Controller
             }
         }
 
-        return view('be.reservasi.edit', compact('reservasi', 'pelanggan', 'paket', 'tanggalPenuh'));
+        return view('be.reservasi.edit', compact('reservasi', 'pelanggan', 'paket', 'tanggalPenuh', 'bankList'));
     }
 
     // Backend: Update reservasi
@@ -215,6 +180,8 @@ class ReservasiController extends Controller
             'tgl_mulai' => 'required|date',
             'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_peserta' => 'required|integer|min:1',
+            'bank_id' => 'required|exists:bank,id',
+            'no_rekening' => 'required|string|max:100',
         ]);
 
         $paket = PaketWisata::findOrFail($request->id_paket);
@@ -267,6 +234,8 @@ class ReservasiController extends Controller
         $data['total_bayar'] = $total_bayar_setelah_diskon;
         $data['diskon'] = $persen_diskon;
         $data['nilai_diskon'] = $nilai_diskon;
+        $data['bank_id'] = $request->bank_id;
+        $data['no_rekening'] = $request->no_rekening;
 
         if ($request->hasFile('file_bukti_tf')) {
             if ($reservasi->file_bukti_tf && Storage::disk('public')->exists($reservasi->file_bukti_tf)) {

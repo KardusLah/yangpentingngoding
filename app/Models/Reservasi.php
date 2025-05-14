@@ -22,8 +22,10 @@ class Reservasi extends Model
         'tgl_mulai',
         'tgl_akhir',
         'lama_reservasi',
-        'midtrans_order_id',   // <--- tambahkan ini
-        'payment_url',    
+        'no_rekening', // <--- tambahkan ini
+        'bank_id',     // <--- tambahkan jika ingin relasi bank
+        // 'midtrans_order_id',   // <--- tambahkan ini
+        // 'payment_url',    
     ];
 
     public function pelanggan()
@@ -34,6 +36,11 @@ class Reservasi extends Model
     public function paket()
     {
         return $this->belongsTo(PaketWisata::class, 'id_paket');
+    }
+
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class, 'bank_id');
     }
 
 }

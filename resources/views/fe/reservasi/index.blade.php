@@ -1,3 +1,4 @@
+{{-- filepath: c:\xampp\htdocs\WISATA\reservasi-online\resources\views\fe\reservasi\index.blade.php --}}
 @extends('fe.master')
 
 @section('content')
@@ -79,10 +80,34 @@
                                 </div>
                             </div>
                             
-                            <div class="mb-4" id="bukti_transfer_group" style="display:none;">
-                                <label class="form-label fw-bold">Bukti Transfer</label>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Metode Pembayaran <span class="text-danger">*</span></label>
+                                <select name="bank_id" id="bank_id" class="form-control rounded-20" required>
+                                    <option value="">Pilih Bank</option>
+                                    @foreach(\App\Models\Bank::all() as $bank)
+                                        <option value="{{ $bank->id }}"
+                                            data-norek="{{ $bank->no_rekening }}"
+                                            data-atasnama="{{ $bank->atas_nama }}">
+                                            {{ $bank->nama_bank }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div id="info-rekening" class="alert alert-info rounded-20" style="display:none;">
+                                <div class="mb-1">
+                                    <span class="fw-bold">No. Rekening:</span>
+                                    <span id="info-norek"></span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">Atas Nama:</span>
+                                    <span id="info-atasnama"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4" id="bukti_transfer_group">
+                                <label class="form-label fw-bold">Bukti Transfer <span class="text-danger">*</span></label>
                                 <div class="custom-file">
-                                    <input type="file" name="file_bukti_tf" class="form-control rounded-20">
+                                    <input type="file" name="file_bukti_tf" class="form-control rounded-20" required accept="image/*,.pdf">
                                     <small class="text-muted">Format: JPG, PNG, atau PDF (max 2MB)</small>
                                 </div>
                             </div>
@@ -203,6 +228,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalBayarInput = document.getElementById('total_bayar');
     const pesanMulai = document.getElementById('pesan_tgl_mulai');
     const pesanAkhir = document.getElementById('pesan_tgl_akhir');
+    const bankSelect = document.getElementById('bank_id');
+    const infoRekening = document.getElementById('info-rekening');
+    const infoNorek = document.getElementById('info-norek');
+    const infoAtasnama = document.getElementById('info-atasnama');
+
+    // Show rekening info below select
+    if (bankSelect) {
+        bankSelect.addEventListener('change', function() {
+            const norek = this.options[this.selectedIndex].getAttribute('data-norek') || '';
+            const atasnama = this.options[this.selectedIndex].getAttribute('data-atasnama') || '';
+            if (this.value) {
+                infoNorek.textContent = norek;
+                infoAtasnama.textContent = atasnama;
+                infoRekening.style.display = 'block';
+            } else {
+                infoRekening.style.display = 'none';
+                infoNorek.textContent = '';
+                infoAtasnama.textContent = '';
+            }
+        });
+    }
 
     // Helper functions
     function formatTanggal(dateString) {
