@@ -133,8 +133,8 @@
                     </li>
                     <li class="sidebar-item {{ request()->is('be/bank*') ? 'active' : '' }}">
                         <a href="{{ route('bank.index') }}" class='sidebar-link'>
-                            <i class="bi bi-percent"></i>
-                            <span>Bank Paket Wisata</span>
+                            <i class="bi bi-bank"></i>
+                            <span>Manajemen Rekening</span>
                         </a>
                     </li>
                 @elseif(Auth::user()->level == 'pemilik')

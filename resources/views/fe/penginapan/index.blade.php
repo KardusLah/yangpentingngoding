@@ -15,8 +15,7 @@
   </div>
 </div>
 
-<div class="container" style="padding-top: 80px;">
-    <h2 class="mb-4">Daftar Penginapan</h2>
+<div class="container py-5">
     <div class="row">
         @forelse($penginapan as $p)
         <div class="col-md-4 mb-4">

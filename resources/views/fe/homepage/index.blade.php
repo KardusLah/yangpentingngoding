@@ -108,10 +108,10 @@
       </div>
     </div>
     <div class="row">
-      @foreach($destinations as $destination)
-      <div class="col-md-3 mb-4">
+      @foreach($wisata as $destination)
+      <div class="col-md-4 mb-4">
         <div class="card h-100">
-          <img src="{{ $destination->foto ? asset('storage/'.$destination->foto) : asset('fe/assets/images/hero-slider-2.jpg') }}" class="card-img-top" alt="{{ $destination->nama_wisata }}">
+          <img src="{{ $destination->foto1 ? asset('storage/'.$destination->foto1) : asset('fe/assets/images/hero-slider-2.jpg') }}" class="card-img-top" alt="{{ $destination->nama_wisata }}">
           <div class="card-body">
             <h5 class="card-title">{{ $destination->nama_wisata }}</h5>
             <a href="{{ route('fe.wisata.show', $destination->id) }}" class="btn btn-sm btn-primary">Detail</a>

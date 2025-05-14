@@ -22,10 +22,6 @@ class Reservasi extends Model
         'tgl_mulai',
         'tgl_akhir',
         'lama_reservasi',
-        'no_rekening', // <--- tambahkan ini
-        'bank_id',     // <--- tambahkan jika ingin relasi bank
-        // 'midtrans_order_id',   // <--- tambahkan ini
-        // 'payment_url',    
     ];
 
     public function pelanggan()

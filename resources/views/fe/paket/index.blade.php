@@ -18,39 +18,6 @@
 </div>
 
 <div class="container py-5">
-    {{-- FILTER --}}
-    <form method="GET" action="{{ route('paket.index') }}" class="mb-4">
-        <div class="row align-items-end g-2">
-            <div class="col-md-3 mb-2">
-                <select name="kategori" class="form-control">
-                    <option value="">Semua Kategori</option>
-                    @foreach($kategori_wisata as $kategori)
-                        <option value="{{ $kategori->id }}" {{ request('kategori') == $kategori->id ? 'selected' : '' }}>
-                            {{ $kategori->kategori_wisata }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3 mb-2">
-                <select name="durasi" class="form-control">
-                    <option value="">Semua Durasi</option>
-                    <option value="1">1 Hari</option>
-                    <option value="2">2 Hari</option>
-                    <option value="3">3 Hari</option>
-                    <option value="4">4 Hari+</option>
-                </select>
-            </div>
-            <div class="col-md-3 mb-2">
-                <input type="number" name="max_harga" class="form-control" placeholder="Harga Maksimal (Rp)">
-            </div>
-            <div class="col-md-3 mb-2">
-                <button class="btn btn-primary w-100" type="submit">
-                    <span class="icofont-filter"></span> Filter
-                </button>
-            </div>
-        </div>
-    </form>
-
     {{-- GRID PAKET WISATA --}}
     <div class="row">
         @forelse($pakets as $paket)

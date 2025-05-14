@@ -15,27 +15,7 @@
   </div>
 </div>
 
-<div class="container" style="padding-top: 80px;">
-    <h2 class="mb-4">Daftar Objek Wisata</h2>
-    <form method="GET" action="{{ route('fe.wisata.index') }}" class="row mb-4">
-        <div class="col-md-4">
-            <input type="text" name="q" class="form-control" placeholder="Cari nama destinasi..." value="{{ request('q') }}">
-        </div>
-        <div class="col-md-3">
-            <select name="kategori" class="form-select">
-                <option value="">Semua Kategori</option>
-                @foreach($kategori as $k)
-                    <option value="{{ $k->id }}" {{ request('kategori') == $k->id ? 'selected' : '' }}>{{ $k->nama_kategori }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-3">
-            <input type="text" name="lokasi" class="form-control" placeholder="Lokasi" value="{{ request('lokasi') }}">
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100" type="submit">Cari</button>
-        </div>
-    </form>
+<div class="container py-5">
     <div class="row">
         @forelse($wisata as $w)
         <div class="col-md-4 mb-4">

@@ -8,6 +8,7 @@ use App\Models\Penginapan;
 use App\Models\Berita;
 use App\Models\KategoriWisata;
 use App\Models\DiskonPaket;
+use App\Models\ObyekWisata;
 
 class HomeController extends Controller
 {
@@ -19,7 +20,7 @@ class HomeController extends Controller
     $pakets = PaketWisata::all();
     $penginapan = Penginapan::latest()->take(3)->get();
     $berita = Berita::latest()->take(3)->get();
-    $destinations = [];
+    $wisata = ObyekWisata::latest()->take(4)->get(); // Ambil 4 obyek wisata terbaru
     $kategori_wisata = KategoriWisata::all();
     $diskon = DiskonPaket::where('aktif', 1)->get()->groupBy('paket_id');
 
@@ -28,7 +29,7 @@ class HomeController extends Controller
         'pakets' => $pakets,
         'penginapan' => $penginapan,
         'berita' => $berita,
-        'destinations' => $destinations,
+        'wisata' => $wisata,
         'kategori_wisata' => $kategori_wisata,
         'diskon' => $diskon
     ]);

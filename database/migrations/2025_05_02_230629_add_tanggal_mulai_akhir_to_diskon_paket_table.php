@@ -7,8 +7,8 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('diskon_paket', function (Blueprint $table) {
-            $table->date('tanggal_mulai')->nullable()->after('persen');
-            $table->date('tanggal_akhir')->nullable()->after('tanggal_mulai');
+            // $table->date('tanggal_mulai')->nullable()->after('persen');
+            // $table->date('tanggal_akhir')->nullable()->after('tanggal_mulai');
         });
     }
 

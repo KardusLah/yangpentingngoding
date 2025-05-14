@@ -142,7 +142,7 @@
             <div class="modal-footer">
             <a href="{{ route('reservasi.edit', $r->id) }}" class="btn btn-warning btn-sm">Edit</a>
             <form action="{{ route('reservasi.destroy', $r->id) }}" method="POST" style="display:inline-block;">
-                @csrf @method('DELETE')
+                @csrf
                 <button class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')">Delete</button>
             </form>
             @if($r->status_reservasi_wisata == 'pesan')

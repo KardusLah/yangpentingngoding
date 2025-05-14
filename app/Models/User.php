@@ -44,6 +44,26 @@ class User extends Authenticatable
         ];
     }
 
+    public function getNameAttribute($value)
+    {
+        // Jika sudah ada di kolom users, pakai itu
+        if ($value) return $value;
+
+        // Jika level pelanggan, ambil dari relasi pelanggan
+        if ($this->level === 'pelanggan' && $this->pelanggan) {
+            return $this->pelanggan->nama_lengkap;
+        }
+
+        // Jika level karyawan, ambil dari relasi karyawan
+        if ($this->level === 'admin' || $this->level === 'bendahara' || $this->level === 'pemilik') {
+            if ($this->karyawan) {
+                return $this->karyawan->nama_karyawan;
+            }
+        }
+
+        return null;
+    }
+
     public function pelanggan(): HasOne
     {
         return $this->hasOne(Pelanggan::class, 'id_user', 'id');

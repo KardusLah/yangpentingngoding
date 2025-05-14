@@ -75,8 +75,6 @@ class ReservasiController extends Controller
             'jumlah_peserta' => 'required|integer|min:1',
             'metode_pembayaran' => 'nullable|string',
             'file_bukti_tf' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', // wajib
-            'bank_id' => 'required|exists:bank,id',
-            'no_rekening' => 'required|string|max:100',
         ]);
 
         $paket = PaketWisata::findOrFail($request->id_paket);
@@ -131,9 +129,6 @@ class ReservasiController extends Controller
         $data['nilai_diskon'] = $nilai_diskon;
         $data['tgl_reservasi_wisata'] = $request->tgl_mulai;
         $data['status_reservasi_wisata'] = $request->status_reservasi_wisata ?? 'pesan';
-        $data['bank_id'] = $request->bank_id;
-        $data['no_rekening'] = $request->no_rekening;
-
         if ($request->hasFile('file_bukti_tf')) {
             $data['file_bukti_tf'] = $request->file('file_bukti_tf')->store('bukti_tf', 'public');
         }
@@ -180,8 +175,6 @@ class ReservasiController extends Controller
             'tgl_mulai' => 'required|date',
             'tgl_akhir' => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_peserta' => 'required|integer|min:1',
-            'bank_id' => 'required|exists:bank,id',
-            'no_rekening' => 'required|string|max:100',
         ]);
 
         $paket = PaketWisata::findOrFail($request->id_paket);
@@ -234,8 +227,6 @@ class ReservasiController extends Controller
         $data['total_bayar'] = $total_bayar_setelah_diskon;
         $data['diskon'] = $persen_diskon;
         $data['nilai_diskon'] = $nilai_diskon;
-        $data['bank_id'] = $request->bank_id;
-        $data['no_rekening'] = $request->no_rekening;
 
         if ($request->hasFile('file_bukti_tf')) {
             if ($reservasi->file_bukti_tf && Storage::disk('public')->exists($reservasi->file_bukti_tf)) {

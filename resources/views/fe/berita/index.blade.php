@@ -21,7 +21,6 @@
 </div>
 
 <div class="container py-5">
-    <h2 class="mb-4">Berita & Info Wisata</h2>
     <div class="row">
         @foreach($berita as $item)
         <div class="col-md-4 mb-4">

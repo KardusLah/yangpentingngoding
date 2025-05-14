@@ -108,7 +108,7 @@
                                 <label class="form-label fw-bold">Bukti Transfer <span class="text-danger">*</span></label>
                                 <div class="custom-file">
                                     <input type="file" name="file_bukti_tf" class="form-control rounded-20" required accept="image/*,.pdf">
-                                    <small class="text-muted">Format: JPG, PNG, atau PDF (max 2MB)</small>
+                                    <small class="text-muted">Format: JPG, PNG, atau PDF</small>
                                 </div>
                             </div>
                             

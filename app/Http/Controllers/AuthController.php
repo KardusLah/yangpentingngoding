@@ -34,7 +34,7 @@ class AuthController extends Controller
         ]);
 
         $user = new User();
-        $user->name = $request->email; // Atau string kosong jika ingin
+        $user->name = ''; // Akan diisi setelah data diri
         $user->email = $request->email;
         $user->no_hp = $request->no_hp;
         $user->password = Hash::make($request->password);
@@ -80,6 +80,8 @@ class AuthController extends Controller
                 'no_hp' => $user->no_hp
             ]
         );
+        // Update nama user
+        $user->update(['name' => $request->nama_lengkap]);
         // Redirect ke dashboard sesuai level
         return redirect($this->redirectByLevel($user->level))->with('success', 'Data diri berhasil disimpan!');
     }
@@ -106,9 +108,10 @@ class AuthController extends Controller
                 'alamat' => $request->alamat,
                 'foto' => $fotoPath,
                 'no_hp' => $user->no_hp,
-                // Tidak mengisi jabatan di sini!
             ]
         );
+        // Update nama user
+        $user->update(['name' => $request->nama_karyawan]);
         // Redirect ke dashboard sesuai level
         return redirect($this->redirectByLevel($user->level))->with('success', 'Data karyawan berhasil disimpan!');
     }
@@ -149,7 +152,7 @@ class AuthController extends Controller
             case 'bendahara':
                 return '/bendahara';
             case 'pemilik':
-                return '/owner'; // <--- dashboard owner
+                return '/owner';
             case 'pelanggan':
             default:
                 return '/';
