@@ -12,7 +12,7 @@
                                         @php $foto = 'foto'.$i; @endphp
                                         @if($item->$foto)
                                             <div class="item">
-                                                <img src="{{ asset('storage/'.$item->$foto) }}" alt="Image {{ $i }}" class="img-fluid rounded-20">
+                                                <img src="{{ asset('storage/'.$item->$foto) }}" alt="Image {{ $i }}" class="img-fluid rounded-20" style="height:500px;object-fit:cover;width:100%;">
                                             </div>
                                         @endif
                                     @endfor
@@ -35,7 +35,7 @@
                             @if($item->$foto)
                                 <div class="col-md-6 col-lg-4 mb-4">
                                     <a href="{{ asset('storage/'.$item->$foto) }}" class="gal-item" data-fancybox="gallery">
-                                        <img src="{{ asset('storage/'.$item->$foto) }}" alt="Penginapan {{ $i }}" class="img-fluid rounded-20">
+                                        <img src="{{ asset('storage/'.$item->$foto) }}" alt="Penginapan {{ $i }}" class="img-fluid rounded-20" style="height:200px;object-fit:cover;width:100%;">
                                     </a>
                                 </div>
                             @endif
@@ -86,6 +86,11 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+<style>
+    .rounded-20 {
+        border-radius: 20px;
+    }
+</style>
 @endpush
 
 @push('scripts')

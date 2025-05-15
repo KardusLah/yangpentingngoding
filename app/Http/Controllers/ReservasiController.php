@@ -17,14 +17,32 @@ use Carbon\Carbon;
 
 class ReservasiController extends Controller
 {
-    // Backend: List reservasi
-    public function index()
+    // =========================
+    // BACKEND: LIST RESERVASI
+    // =========================
+    /**
+     * Display a listing of the reservasi.
+     */
+    public function index(Request $request)
     {
-        $reservasi = Reservasi::with(['pelanggan', 'paket'])->get();
-        return view('be.reservasi.index', compact('reservasi'));
+        $status = $request->query('status', 'all');
+        $query = Reservasi::with(['pelanggan', 'paket']);
+
+        if ($status && $status !== 'all') {
+            $query->where('status_reservasi_wisata', $status);
+        }
+
+        $reservasi = $query->get();
+
+        return view('be.reservasi.index', compact('reservasi', 'status'));
     }
 
-    // Backend: Form tambah reservasi
+    // =========================
+    // BACKEND: FORM TAMBAH RESERVASI
+    // =========================
+    /**
+     * Show the form for creating a new reservasi.
+     */
     public function create()
     {
         $pelanggan = Pelanggan::all();
@@ -47,7 +65,12 @@ class ReservasiController extends Controller
         return view('be.reservasi.create', compact('pelanggan', 'paket', 'tanggalPenuh', 'bankList'));
     }
 
-    // Store reservasi (FE & BE)
+    // =========================
+    // STORE RESERVASI (FE & BE)
+    // =========================
+    /**
+     * Store a newly created reservasi in storage.
+     */
     public function store(Request $request)
     {
         // Ambil user login (multi-role)
@@ -139,7 +162,12 @@ class ReservasiController extends Controller
         return redirect()->route('profile')->with('success', 'Reservasi berhasil dibuat! Silakan cek status reservasi Anda.');
     }
 
-    // Backend: Edit reservasi
+    // =========================
+    // BACKEND: EDIT RESERVASI
+    // =========================
+    /**
+     * Show the form for editing the specified reservasi.
+     */
     public function edit($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -164,7 +192,12 @@ class ReservasiController extends Controller
         return view('be.reservasi.edit', compact('reservasi', 'pelanggan', 'paket', 'tanggalPenuh', 'bankList'));
     }
 
-    // Backend: Update reservasi
+    // =========================
+    // BACKEND: UPDATE RESERVASI
+    // =========================
+    /**
+     * Update the specified reservasi in storage.
+     */
     public function update(Request $request, $id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -240,7 +273,12 @@ class ReservasiController extends Controller
         return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil diupdate!');
     }
 
-    // Backend: Hapus reservasi
+    // =========================
+    // BACKEND: HAPUS RESERVASI
+    // =========================
+    /**
+     * Remove the specified reservasi from storage.
+     */
     public function destroy($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -251,7 +289,12 @@ class ReservasiController extends Controller
         return redirect()->route('reservasi.index')->with('success', 'Reservasi berhasil dihapus!');
     }
 
-    // Backend: Simulasi pemesanan
+    // =========================
+    // BACKEND: SIMULASI PEMESANAN
+    // =========================
+    /**
+     * Simulasi pemesanan reservasi.
+     */
     public function simulasi(Request $request)
     {
         $paket = PaketWisata::with(['reservasiAktif'])->get();
@@ -307,7 +350,12 @@ class ReservasiController extends Controller
         return view('be.reservasi.simulasi', compact('paket', 'tanggalPenuh', 'simulasi'));
     }
 
-    // Backend: Set status reservasi
+    // =========================
+    // BACKEND: SET STATUS RESERVASI
+    // =========================
+    /**
+     * Set status reservasi menjadi 'dibayar'.
+     */
     public function terima($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -316,6 +364,9 @@ class ReservasiController extends Controller
         return back()->with('success', 'Reservasi diterima.');
     }
 
+    /**
+     * Set status reservasi menjadi 'ditolak'.
+     */
     public function tolak($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -324,6 +375,9 @@ class ReservasiController extends Controller
         return back()->with('success', 'Reservasi ditolak.');
     }
 
+    /**
+     * Set status reservasi menjadi 'selesai'.
+     */
     public function selesai($id)
     {
         $reservasi = Reservasi::findOrFail($id);
@@ -332,7 +386,12 @@ class ReservasiController extends Controller
         return back()->with('success', 'Reservasi selesai.');
     }
 
-    // Backend: Bulk action
+    // =========================
+    // BACKEND: BULK ACTION
+    // =========================
+    /**
+     * Bulk action for reservasi.
+     */
     public function bulk(Request $request, $action)
     {
         $ids = $request->selected;
@@ -355,7 +414,12 @@ class ReservasiController extends Controller
         return back()->with('success', 'Aksi massal berhasil dijalankan.');
     }
 
-    // FE: Halaman booking
+    // =========================
+    // FRONTEND: HALAMAN BOOKING
+    // =========================
+    /**
+     * Show the frontend booking page.
+     */
     public function feIndex(Request $request)
     {
         $pakets = PaketWisata::all();
@@ -379,7 +443,12 @@ class ReservasiController extends Controller
         return view('fe.reservasi.index', compact('pakets', 'diskon', 'paketTerpilih', 'tanggalPenuh'));
     }
 
-    // FE: Halaman detail reservasi
+    // =========================
+    // FRONTEND: HALAMAN DETAIL RESERVASI
+    // =========================
+    /**
+     * Show the frontend reservasi detail page.
+     */
     public function detail($id)
     {
         $paket = PaketWisata::with('kategori')->findOrFail($id);
@@ -387,7 +456,12 @@ class ReservasiController extends Controller
         return view('fe.reservasi.detail', compact('paket', 'diskon'));
     }
 
-    // Midtrans callback
+    // =========================
+    // MIDTRANS CALLBACK
+    // =========================
+    /**
+     * Handle Midtrans payment callback.
+     */
     public function midtransCallback(Request $request)
     {
         Log::info('Midtrans callback masuk', $request->all());

@@ -33,7 +33,7 @@
                             onclick="showImgPreview('{{ asset('storage/'.$w->$foto) }}')">
                         @endif
                     @endfor
-                </td>>
+                </td>
 
                 <td>
                     <a href="{{ route('wisata.edit', $w->id) }}" class="btn btn-sm btn-warning">Edit</a>

@@ -65,16 +65,11 @@
                 @else
                     <li class="has-children ml-3">
                         <a href="#" class="d-inline-flex align-items-center">
-                            <img src="{{ Auth::user()->foto ?? asset('fe/assets/images/user.png') }}" 
-                                alt="Profil" 
-                                class="rounded-circle mr-2" 
-                                width="32" 
-                                height="32">
                             <span>{{ Auth::user()->name }}</span>
                         </a>
                         <ul class="dropdown arrow-top">
                             <li><a href="{{ route('profile') }}">Profil Saya</a></li>
-                            <li><a href="#">Pesanan</a></li>
+                            <li><a href="{{ route('profile') }}#riwayat-reservasi">Pesanan</a></li>
                             <li><a href="{{ route('logout') }}" 
                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                   Logout
@@ -94,13 +89,7 @@
                     <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm px-3 mr-2">Login</a>
                     <a href="{{ route('registration') }}" class="btn btn-primary btn-sm px-3">Sign In</a>
                 @else
-                    <a href="{{ route('profile') }}" class="d-inline-block align-middle mr-3">
-                        <img src="{{ Auth::user()->foto ?? asset('fe/assets/images/user.png') }}" 
-                            alt="Profil" 
-                            class="rounded-circle" 
-                            width="32" 
-                            height="32">
-                    </a>
+                    <a href="{{ route('profile') }}" class="d-inline-block align-middle mr-3"></a>
                 @endguest
                 <a href="#" class="burger site-menu-toggle js-menu-toggle d-inline-block d-lg-none light">
                     <span></span>

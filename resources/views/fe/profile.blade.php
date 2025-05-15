@@ -22,7 +22,7 @@
                     <div class="alert alert-warning alert-dismissible fade show rounded-20 mb-4" role="alert">
                         <h5 class="alert-heading d-flex align-items-center">
                             <i class="fas fa-exclamation-circle me-2"></i>
-                            Ada reservasi yang perlu aksi
+                            Menunggu Konfirmasi
                         </h5>
                         <div class="d-flex flex-wrap gap-2 mt-2">
                             @foreach($notifikasi as $notif)
@@ -127,7 +127,7 @@
                         </div>
 
                         {{-- Riwayat Reservasi --}}
-                        <div class="card shadow-sm rounded-20">
+                        <div class="card shadow-sm rounded-20" id="riwayat-reservasi">
                             <div class="card-header bg-primary text-white rounded-top-20">
                                 <h5 class="mb-0">Riwayat Reservasi</h5>
                             </div>

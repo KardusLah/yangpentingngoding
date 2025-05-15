@@ -7,14 +7,35 @@
     <a href="{{ route('reservasi.create') }}" class="btn btn-primary mb-3">Tambah Reservasi</a>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    <form id="bulkActionForm" method="POST" action="">
-        @csrf
-        <div class="mb-2 d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-danger btn-sm" onclick="submitBulk('delete')">Hapus</button>
-            <button type="button" class="btn btn-success btn-sm" onclick="submitBulk('terima')" id="btnBulkTerima" disabled>Terima</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="submitBulk('tolak')" id="btnBulkTolak" disabled>Tolak</button>
-            <button type="button" class="btn btn-info btn-sm" onclick="submitBulk('selesai')" id="btnBulkSelesai" disabled>Selesai</button>
+            @endif
+            <form id="bulkActionForm" method="POST" action="">
+                @csrf
+                <div class="mb-2 d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="submitBulk('delete')">Hapus</button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="submitBulk('terima')" id="btnBulkTerima" disabled>Terima</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="submitBulk('tolak')" id="btnBulkTolak" disabled>Tolak</button>
+                    <button type="button" class="btn btn-info btn-sm" onclick="submitBulk('selesai')" id="btnBulkSelesai" disabled>Selesai</button>
+                </div>
+        <div class="mb-3">
+            @php
+                $statuses = [
+                    'all' => 'Semua',
+                    'pesan' => 'Pesan',
+                    'dibayar' => 'Dibayar',
+                    'selesai' => 'Selesai',
+                    'ditolak' => 'Ditolak'
+                ];
+            @endphp
+            <ul class="nav nav-tabs">
+                @foreach($statuses as $key => $label)
+                    <li class="nav-item">
+                        <a class="nav-link {{ ($status ?? 'all') === $key ? 'active' : '' }}"
+                        href="{{ route('reservasi.index', ['status' => $key]) }}">
+                            {{ $label }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
         <table class="table table-bordered table-striped">
             <thead class="thead-dark">
@@ -62,10 +83,6 @@
                         @else
                             -
                         @endif
-                    </td>
-                    <td>
-                        {{-- Tampilkan no rekening, contoh: --}}
-                        {{ $r->no_rekening ?? ($r->bank->no_rekening ?? '-') }}
                     </td>
                     <td class="status-cell" data-status="{{ $r->status_reservasi_wisata }}">
                         @if($r->status_reservasi_wisata == 'pesan')

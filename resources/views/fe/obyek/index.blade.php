@@ -25,7 +25,7 @@
                 @endif
                 <div class="card-body">
                     <h5 class="card-title">{{ $w->nama_wisata }}</h5>
-                    <span class="badge bg-info mb-2"><i class="fa fa-tag"></i> {{ $w->kategori->nama_kategori ?? '-' }}</span>
+                    <span class="badge bg-info mb-2"><i class="fa fa-tag"></i> {{ $w->kategori->kategori_wisata ?? '-' }}</span>
                     <p class="card-text">{{ Str::limit($w->deskripsi_wisata, 80) }}</p>
                     <a href="{{ route('fe.wisata.show', $w->id) }}" class="btn btn-sm btn-primary">Detail</a>
                 </div>

@@ -20,7 +20,7 @@ class HomeController extends Controller
     $pakets = PaketWisata::all();
     $penginapan = Penginapan::latest()->take(3)->get();
     $berita = Berita::latest()->take(3)->get();
-    $wisata = ObyekWisata::latest()->take(4)->get(); // Ambil 4 obyek wisata terbaru
+    $wisata = ObyekWisata::with('kategori')->latest()->take(4)->get();
     $kategori_wisata = KategoriWisata::all();
     $diskon = DiskonPaket::where('aktif', 1)->get()->groupBy('paket_id');
 

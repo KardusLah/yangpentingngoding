@@ -12,7 +12,7 @@
                         @php $foto = 'foto'.$i; @endphp
                         @if($item->$foto)
                             <div class="item">
-                                <img src="{{ asset('storage/'.$item->$foto) }}" alt="Image {{ $i }}" class="img-fluid rounded-20">
+                                <img src="{{ asset('storage/'.$item->$foto) }}" alt="Image {{ $i }}" class="img-fluid rounded-20" style="height:500px;object-fit:cover;width:100%;">
                             </div>
                         @endif
                     @endfor
@@ -47,7 +47,7 @@
                     <ul class="list-unstyled">
                         <li class="mb-3">
                             <strong class="d-block mb-1">Kategori:</strong>
-                            <span class="badge bg-primary">{{ $item->kategori->nama_kategori ?? '-' }}</span>
+                            <span class="badge bg-primary">{{ $item->kategori->kategori_wisata ?? '-' }}</span>
                         </li>
                         <li class="mb-3">
                             <strong class="d-block mb-1">Lokasi:</strong>
@@ -77,6 +77,14 @@
 @section('footer')
     @include('fe.footer')
 @endsection
+
+@push('styles')
+<style>
+    .rounded-20 {
+        border-radius: 20px;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>

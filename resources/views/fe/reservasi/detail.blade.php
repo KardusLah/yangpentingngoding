@@ -8,21 +8,20 @@
             <!-- Gallery utama dengan carousel -->
             <div id="paketGallery" class="carousel slide mb-4" data-bs-ride="carousel">
                 <div class="carousel-inner rounded">
-                    @if($paket->foto1)
-                        <div class="carousel-item active">
-                            <img src="{{ asset('storage/'.$paket->foto1) }}" class="d-block w-100" alt="{{ $paket->nama_paket }}">
-                        </div>
-                    @endif
-                    @for($i=2; $i<=5; $i++)
+                    @php $fotoList = []; @endphp
+                    @for($i=1; $i<=5; $i++)
                         @php $foto = 'foto'.$i; @endphp
                         @if($paket->$foto)
-                            <div class="carousel-item">
-                                <img src="{{ asset('storage/'.$paket->$foto) }}" class="d-block w-100" alt="Gallery image {{ $i }}">
-                            </div>
+                            @php $fotoList[] = $paket->$foto; @endphp
                         @endif
                     @endfor
+                    @foreach($fotoList as $idx => $fotoPath)
+                        <div class="carousel-item @if($idx === 0) active @endif">
+                            <img src="{{ asset('storage/'.$fotoPath) }}" class="d-block w-100" alt="Gallery image {{ $idx+1 }}">
+                        </div>
+                    @endforeach
                 </div>
-                @if($paket->foto1 && ($paket->foto2 || $paket->foto3 || $paket->foto4 || $paket->foto5))
+                @if(count($fotoList) > 1)
                     <button class="carousel-control-prev" type="button" data-bs-target="#paketGallery" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
@@ -35,19 +34,17 @@
             </div>
 
             <!-- Thumbnail gallery -->
-            <div class="row g-2">
-                @for($i=1; $i<=5; $i++)
-                    @php $foto = 'foto'.$i; @endphp
-                    @if($paket->$foto)
-                        <div class="col-4 col-md-3">
-                            <img src="{{ asset('storage/'.$paket->$foto) }}" 
-                                 class="img-thumbnail cursor-pointer" 
+            <div class="row g-2 justify-content-start" id="paketThumbnails">
+                @foreach($fotoList as $idx => $fotoPath)
+                    <div class="col-4 col-md-3">
+                        <div class="thumbnail-wrapper @if($idx === 0) border-primary border-2 @endif" data-bs-slide-to="{{ $idx }}" style="cursor:pointer;">
+                            <img src="{{ asset('storage/'.$fotoPath) }}" 
+                                 class="img-thumbnail w-100"
                                  style="height: 80px; object-fit: cover;"
-                                 onclick="document.getElementById('paketGallery').carousel.to({{ $i-1 }})"
-                                 alt="Thumbnail {{ $i }}">
+                                 alt="Thumbnail {{ $idx+1 }}">
                         </div>
-                    @endif
-                @endfor
+                    </div>
+                @endforeach
             </div>
         </div>
         
@@ -128,6 +125,21 @@
         left: 0;
         z-index: 1030;
     }
+
+    /* Highlight thumbnail aktif */
+    .thumbnail-wrapper {
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 2px;
+        transition: border-color 0.2s;
+    }
+    .thumbnail-wrapper.active,
+    .thumbnail-wrapper.border-primary {
+        border-color: #0d6efd !important;
+    }
+    .thumbnail-wrapper:hover {
+        border-color: #0d6efd;
+    }
 </style>
 @endsection
 
@@ -147,9 +159,34 @@
         @endif
         
         // Inisialisasi carousel
-        const myCarousel = document.querySelector('#paketGallery');
-        if (myCarousel) {
-            new bootstrap.Carousel(myCarousel);
+        const myCarouselEl = document.querySelector('#paketGallery');
+        let myCarousel;
+        if (myCarouselEl) {
+            myCarousel = new bootstrap.Carousel(myCarouselEl, { interval: false });
+        }
+
+        // Thumbnail click event
+        const thumbnails = document.querySelectorAll('#paketThumbnails .thumbnail-wrapper');
+        thumbnails.forEach((thumb, idx) => {
+            thumb.addEventListener('click', function() {
+                if (myCarousel) {
+                    myCarousel.to(idx);
+                }
+            });
+        });
+
+        // Sync active thumbnail with carousel slide
+        if (myCarouselEl) {
+            myCarouselEl.addEventListener('slide.bs.carousel', function (event) {
+                thumbnails.forEach(t => t.classList.remove('active', 'border-primary'));
+                if (thumbnails[event.to]) {
+                    thumbnails[event.to].classList.add('active', 'border-primary');
+                }
+            });
+            // Set initial active
+            if (thumbnails[0]) {
+                thumbnails[0].classList.add('active', 'border-primary');
+            }
         }
     });
 </script>

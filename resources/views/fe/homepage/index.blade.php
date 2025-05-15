@@ -107,19 +107,24 @@
         <a href="{{ route('fe.wisata.index') }}" class="btn btn-outline-third btn-sm">Lihat Semua Obyek</a>
       </div>
     </div>
-    <div class="row">
-      @foreach($wisata as $destination)
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          <img src="{{ $destination->foto1 ? asset('storage/'.$destination->foto1) : asset('fe/assets/images/hero-slider-2.jpg') }}" class="card-img-top" alt="{{ $destination->nama_wisata }}">
-          <div class="card-body">
-            <h5 class="card-title">{{ $destination->nama_wisata }}</h5>
-            <a href="{{ route('fe.wisata.show', $destination->id) }}" class="btn btn-sm btn-primary">Detail</a>
+      <div class="row">
+        @foreach($wisata as $destination)
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="{{ $destination->foto1 ? asset('storage/'.$destination->foto1) : asset('fe/assets/images/hero-slider-2.jpg') }}" class="card-img-top" alt="{{ $destination->nama_wisata }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ $destination->nama_wisata }}</h5>
+              @if($destination->kategori)
+                <div class="mb-2">
+                  <span class="badge bg-info"><i class="fa fa-tag"></i>{{ $destination->kategori->kategori_wisata ?? '-' }}</span>
+                </div>
+              @endif
+              <a href="{{ route('fe.wisata.show', $destination->id) }}" class="btn btn-sm btn-primary mt-2">Detail</a>
+            </div>
           </div>
         </div>
+        @endforeach
       </div>
-      @endforeach
-    </div>
   </div>
 </div>
 

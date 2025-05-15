@@ -9,9 +9,18 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with(['pelanggan', 'karyawan'])->get();
+        $status = $request->query('status', 'all');
+        $query = User::with(['pelanggan', 'karyawan']);
+
+        if ($status == 'Aktif') {
+            $query->where('aktif', 1);
+        } elseif ($status == 'Nonaktif') {
+            $query->where('aktif', 0);
+        }
+
+        $users = $query->get();
         return view('be.user.index', compact('users'));
     }
 
@@ -187,5 +196,41 @@ class UserController extends Controller
         $user->aktif = $request->aktif ? 1 : 0;
         $user->save();
         return response()->json(['success' => true]);
+    }
+
+    public function bulkAction(Request $request, $action)
+    {
+        $ids = $request->input('selected', []);
+        if (empty($ids)) {
+            return back()->with('error', 'Tidak ada user yang dipilih.');
+        }
+
+        if ($action === 'delete') {
+            $users = User::whereIn('id', $ids)->get();
+            foreach ($users as $user) {
+                if ($user->pelanggan) {
+                    if ($user->pelanggan->foto) {
+                        Storage::disk('public')->delete($user->pelanggan->foto);
+                    }
+                    $user->pelanggan->delete();
+                }
+                if ($user->karyawan) {
+                    if ($user->karyawan->foto) {
+                        Storage::disk('public')->delete($user->karyawan->foto);
+                    }
+                    $user->karyawan->delete();
+                }
+                $user->delete();
+            }
+            return back()->with('success', 'User terpilih berhasil dihapus.');
+        } elseif ($action === 'aktifkan') {
+            User::whereIn('id', $ids)->update(['aktif' => 1]);
+            return back()->with('success', 'User terpilih berhasil diaktifkan.');
+        } elseif ($action === 'nonaktifkan') {
+            User::whereIn('id', $ids)->update(['aktif' => 0]);
+            return back()->with('success', 'User terpilih berhasil dinonaktifkan.');
+        }
+
+        return back()->with('error', 'Aksi tidak dikenali.');
     }
 }
