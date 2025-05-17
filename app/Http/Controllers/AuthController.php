@@ -8,6 +8,10 @@ use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -30,27 +34,20 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'no_hp' => 'required',
             'password' => 'required|min:8|max:12|confirmed',
-            'level' => 'required|in:admin,bendahara,pemilik,pelanggan'
         ]);
 
         $user = new User();
-        $user->name = ''; // Akan diisi setelah data diri
+        $user->name = '';
         $user->email = $request->email;
         $user->no_hp = $request->no_hp;
         $user->password = Hash::make($request->password);
-        $user->level = $request->level;
+        $user->level = 'pelanggan';
         $user->aktif = 1;
 
         if ($user->save()) {
             Auth::login($user);
             $request->session()->put('loginId', $user->id);
-
-            // Redirect ke form data diri sesuai level
-            if ($user->level == 'pelanggan') {
-                return redirect()->route('auth.pelangganDataDiriForm');
-            } else {
-                return redirect()->route('auth.karyawanDataDiriForm');
-            }
+            return redirect()->route('auth.pelangganDataDiriForm');
         } else {
             return back()->withErrors(['email' => 'Gagal registrasi.']);
         }
@@ -80,9 +77,7 @@ class AuthController extends Controller
                 'no_hp' => $user->no_hp
             ]
         );
-        // Update nama user
         $user->update(['name' => $request->nama_lengkap]);
-        // Redirect ke dashboard sesuai level
         return redirect($this->redirectByLevel($user->level))->with('success', 'Data diri berhasil disimpan!');
     }
 
@@ -110,9 +105,7 @@ class AuthController extends Controller
                 'no_hp' => $user->no_hp,
             ]
         );
-        // Update nama user
         $user->update(['name' => $request->nama_karyawan]);
-        // Redirect ke dashboard sesuai level
         return redirect($this->redirectByLevel($user->level))->with('success', 'Data karyawan berhasil disimpan!');
     }
 
@@ -128,8 +121,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $request->session()->put('loginId', $user->id);
-
-            // Redirect based on user role
             return redirect()->intended($this->redirectByLevel(Auth::user()->level));
         }
 
@@ -141,6 +132,69 @@ class AuthController extends Controller
     {
         Auth::logout();
         return redirect('/login');
+    }
+
+    // Forgot Password: Show form
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    // Forgot Password: Send reset link
+    public function sendResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => $token,
+                'created_at' => Carbon::now()
+            ]
+        );
+
+        $resetLink = url('/reset-password/' . $token . '?email=' . urlencode($request->email));
+        Mail::raw("Klik link berikut untuk reset password: $resetLink", function ($message) use ($request) {
+            $message->to($request->email)
+                ->subject('Reset Password');
+        });
+
+        return back()->with('success', 'Link reset password sudah dikirim ke email Anda.');
+    }
+
+    // Forgot Password: Show reset form
+    public function showResetForm(Request $request, $token)
+    {
+        $email = $request->query('email');
+        return view('auth.reset-password', compact('token', 'email'));
+    }
+
+    // Forgot Password: Reset password
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|confirmed|min:8',
+            'token' => 'required'
+        ]);
+
+        $reset = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$reset) {
+            return back()->withErrors(['email' => 'Token tidak valid atau sudah kadaluarsa.']);
+        }
+
+        User::where('email', $request->email)
+            ->update(['password' => bcrypt($request->password)]);
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect('/login')->with('success', 'Password berhasil direset. Silakan login.');
     }
 
     // Helper: redirect path by level

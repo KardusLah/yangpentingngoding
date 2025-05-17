@@ -63,6 +63,10 @@ Route::post('/pelanggan/data-diri', [AuthController::class, 'pelangganDataDiriSi
 Route::get('/karyawan/data-diri', [AuthController::class, 'karyawanDataDiriForm'])->name('auth.karyawanDataDiriForm');
 Route::post('/karyawan/data-diri', [AuthController::class, 'karyawanDataDiriSimpan'])->name('auth.karyawanDataDiriSimpan');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
 // ===========================
 // ADMIN
